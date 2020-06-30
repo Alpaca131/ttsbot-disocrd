@@ -15,6 +15,9 @@ voice_active = 'false'
 @client.event
 async def on_ready():
     print('ready')
+    if not discord.opus.is_loaded():
+        # もし未ロードだったら
+        discord.opus.load_opus("heroku-buildpack-libopus")
 
 @client.event
 async def on_message(message):
@@ -28,70 +31,37 @@ async def on_message(message):
         voice_active = 'false'
 
     if voice_active == 'true':
-        if not discord.opus.is_loaded():
-            # もし未ロードだったら
-            discord.opus.load_opus("heroku-buildpack-libopus")
-            str_url = "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key="
-            str_headers = {'Content-Type': 'application/json; charset=utf-8'}
-            url = str_url + str_api_key
-            str_json_data = {
-                'input': {
-                    'text': message.content
-                },
-                'voice': {
-                    'languageCode': 'ja-JP',
-                    'name': 'ja-JP-Wavenet-C',
-                    'ssmlGender': 'MALE'
-                },
-                'audioConfig': {
-                    'audioEncoding': 'MP3'
-                }
+        str_url = "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key="
+        str_headers = {'Content-Type': 'application/json; charset=utf-8'}
+        url = str_url + str_api_key
+        str_json_data = {
+            'input': {
+                'text': message.content
+            },
+            'voice': {
+                'languageCode': 'ja-JP',
+                'name': 'ja-JP-Wavenet-C',
+                'ssmlGender': 'MALE'
+            },
+            'audioConfig': {
+                'audioEncoding': 'MP3'
             }
-            jd = json.dumps(str_json_data)
-            # print(jd)
-            print("begin request")
+        }
+        jd = json.dumps(str_json_data)
+        # print(jd)
+        print("begin request")
 
-            s = requests.Session()
-            r = requests.post(url, data=jd, headers=str_headers)
-            print("status code : ", r.status_code)
-            print("end request")
-            if r.status_code == 200:
-                parsed = json.loads(r.text)
-                with open('data.mp3', 'wb') as outfile:
-                    outfile.write(base64.b64decode(parsed['audioContent']))
-                voich.play(discord.FFmpegPCMAudio('data.mp3'), after=print('playing'))
-                return
-        else:
-            str_url = "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key="
-            str_headers = {'Content-Type': 'application/json; charset=utf-8'}
-            url = str_url + str_api_key
-            str_json_data = {
-                'input': {
-                    'text': message.content
-                },
-                'voice': {
-                    'languageCode': 'ja-JP',
-                    'name': 'ja-JP-Wavenet-C',
-                    'ssmlGender': 'MALE'
-                },
-                'audioConfig': {
-                    'audioEncoding': 'MP3'
-                }
-            }
-            jd = json.dumps(str_json_data)
-            # print(jd)
-            print("begin request")
+        s = requests.Session()
+        r = requests.post(url, data=jd, headers=str_headers)
+        print("status code : ", r.status_code)
+        print("end request")
+        if r.status_code == 200:
+            parsed = json.loads(r.text)
+            with open('data.mp3', 'wb') as outfile:
+                outfile.write(base64.b64decode(parsed['audioContent']))
+            voich.play(discord.FFmpegPCMAudio('data.mp3'), after=print('playing'))
+            return
 
-            s = requests.Session()
-            r = requests.post(url, data=jd, headers=str_headers)
-            print("status code : ", r.status_code)
-            print("end request")
-            if r.status_code == 200:
-                parsed = json.loads(r.text)
-                with open('data.mp3', 'wb') as outfile:
-                    outfile.write(base64.b64decode(parsed['audioContent']))
-                voich.play(discord.FFmpegPCMAudio('data.mp3'), after=print('playing'))
-                return
 
     await dispand(message)
 
