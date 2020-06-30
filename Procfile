@@ -1,1 +1,1 @@
-ECHO ÇÕ <ON> Ç≈Ç∑ÅB
+worker: python bot.py
