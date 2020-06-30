@@ -15,9 +15,6 @@ voice_active = 'false'
 @client.event
 async def on_ready():
     print('ready')
-    if not discord.opus.is_loaded():
-        # もし未ロードだったら
-        discord.opus.load_opus("heroku-buildpack-libopus")
 
 @client.event
 async def on_message(message):
@@ -31,6 +28,9 @@ async def on_message(message):
         voice_active = 'false'
 
     if voice_active == 'true':
+        if not discord.opus.is_loaded():
+            # もし未ロードだったら
+            discord.opus.load_opus("heroku-buildpack-libopus")
         str_url = "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key="
         str_headers = {'Content-Type': 'application/json; charset=utf-8'}
         url = str_url + str_api_key
