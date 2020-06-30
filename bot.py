@@ -15,6 +15,9 @@ voice_active = 'false'
 @client.event
 async def on_ready():
     print('ready')
+    if not discord.opus.is_loaded():
+        # もし未ロードだったら
+        discord.opus.load_opus("heroku-buildpack-libopus")
 
 @client.event
 async def on_message(message):
