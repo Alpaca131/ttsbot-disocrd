@@ -21,18 +21,20 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global voice_active, voich
+    global voice_active, voich, language
     if message.author.bot:
         return
     if message.content.startswith('/connect'):
         if message.content[9:] == '日本語' or 'JP' or 'Jp' or 'jp':
             language = 'ja-JP'
-        if message.content[9:] == '韓国語' or 'KR' or 'Kr' or 'kr':
+        elif message.content[9:] == '韓国語' or 'KR' or 'Kr' or 'kr':
             language = 'ko-KR'
-        if message.content[9:] == '中国語' or 'CH' or 'Ch' or 'ch':
+        elif message.content[9:] == '中国語' or 'CH' or 'Ch' or 'ch':
             language = 'cmn-CN'
-        if message.content[9:] == '英語' or 'EN' or 'En' or 'en':
+        elif message.content[9:] == '英語' or 'EN' or 'En' or 'en':
             language = 'en-US'
+        else:
+            language = 'ja-JP'
         voich = await discord.VoiceChannel.connect(message.author.voice.channel)
         voice_active = 'true'
     # 切断
@@ -56,7 +58,7 @@ async def on_message(message):
                     'text': text_mod
                 },
                 'voice': {
-                    'languageCode': 'ja-JP',
+                    'languageCode': language,
                     'name': 'ja-JP-Wavenet-C',
                     'ssmlGender': 'MALE'
                 },
