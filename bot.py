@@ -30,6 +30,11 @@ async def on_message(message):
             language = 'ja-JP'
             voich = await discord.VoiceChannel.connect(message.author.voice.channel)
             voice_active = 'true'
+        if message.content[9:] is None:
+            print('JP')
+            language = 'ja-JP'
+            voich = await discord.VoiceChannel.connect(message.author.voice.channel)
+            voice_active = 'true'
         if message.content[9:] == '韓国語':
             print('KR')
             language = 'ko-KR'
@@ -43,10 +48,6 @@ async def on_message(message):
         if message.content[9:] == '英語':
             print('EN')
             language = 'en-US'
-            voich = await discord.VoiceChannel.connect(message.author.voice.channel)
-            voice_active = 'true'
-        else:
-            language = 'ja-JP'
             voich = await discord.VoiceChannel.connect(message.author.voice.channel)
             voice_active = 'true'
             
