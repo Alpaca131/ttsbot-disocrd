@@ -28,19 +28,28 @@ async def on_message(message):
         if message.content[9:] == '日本語' or 'JP' or 'Jp' or 'jp':
             print('JP')
             language = 'ja-JP'
-        elif message.content[9:] == '韓国語' or 'KR' or 'Kr' or 'kr':
+            voich = await discord.VoiceChannel.connect(message.author.voice.channel)
+            voice_active = 'true'
+        if message.content[9:] == '韓国語' or 'KR' or 'Kr' or 'kr':
             print('KR')
             language = 'ko-KR'
-        elif message.content[9:] == '中国語' or 'CH' or 'Ch' or 'ch':
+            voich = await discord.VoiceChannel.connect(message.author.voice.channel)
+            voice_active = 'true'
+        if message.content[9:] == '中国語' or 'CH' or 'Ch' or 'ch':
             print('CH')
             language = 'cmn-CN'
-        elif message.content[9:] == '英語' or 'EN' or 'En' or 'en':
+            voich = await discord.VoiceChannel.connect(message.author.voice.channel)
+            voice_active = 'true'
+        if message.content[9:] == '英語' or 'EN' or 'En' or 'en':
             print('EN')
             language = 'en-US'
+            voich = await discord.VoiceChannel.connect(message.author.voice.channel)
+            voice_active = 'true'
         else:
             language = 'ja-JP'
-        voich = await discord.VoiceChannel.connect(message.author.voice.channel)
-        voice_active = 'true'
+            voich = await discord.VoiceChannel.connect(message.author.voice.channel)
+            voice_active = 'true'
+            
     # 切断
     if message.content.startswith('/discon'):
         await voich.disconnect()
