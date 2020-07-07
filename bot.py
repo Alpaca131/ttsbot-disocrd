@@ -25,32 +25,23 @@ async def on_message(message):
     if message.author.bot:
         return
     if message.content.startswith('/connect'):
-        if message.content[9:] == '日本語':
+        if message.content[9:] == '日本語' or 'JP' or 'Jp' or 'jp':
             print('JP')
             language = 'ja-JP'
-            voich = await discord.VoiceChannel.connect(message.author.voice.channel)
-            voice_active = 'true'
-        if message.content[9:] is None:
-            print('JP')
-            language = 'ja-JP'
-            voich = await discord.VoiceChannel.connect(message.author.voice.channel)
-            voice_active = 'true'
-        if message.content[9:] == '韓国語':
+        elif message.content[9:] == '韓国語' or 'JP' or 'Jp' or 'jp':
             print('KR')
             language = 'ko-KR'
-            voich = await discord.VoiceChannel.connect(message.author.voice.channel)
-            voice_active = 'true'
-        if message.content[9:] == '中国語':
+        elif message.content[9:] == '中国語' or 'CH' or 'Ch' or 'or':
             print('CH')
             language = 'cmn-CN'
-            voich = await discord.VoiceChannel.connect(message.author.voice.channel)
-            voice_active = 'true'
-        if message.content[9:] == '英語':
+        elif message.content[9:] == '英語' or 'EN' or 'En' or 'en':
             print('EN')
             language = 'en-US'
-            voich = await discord.VoiceChannel.connect(message.author.voice.channel)
-            voice_active = 'true'
-            
+        else:
+            language = 'ja-JP'
+        voich = await discord.VoiceChannel.connect(message.author.voice.channel)
+        voice_active = 'true'
+
     # 切断
     if message.content.startswith('/discon'):
         await voich.disconnect()
@@ -64,68 +55,39 @@ async def on_message(message):
             text_mod = message.content
             for item in url_list:
                 text_mod = text_mod.remove
-            str_url = "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key="
-            str_headers = {'Content-Type': 'application/json; charset=utf-8'}
-            url = str_url + str_api_key
-            str_json_data = {
-                'input': {
-                    'text': text_mod
-                },
-                'voice': {
-                    'languageCode': language,
-                    'name': 'ja-JP-Wavenet-C',
-                    'ssmlGender': 'MALE'
-                },
-                'audioConfig': {
-                    'audioEncoding': 'MP3'
-                }
-            }
-            jd = json.dumps(str_json_data)
-            # print(jd)
-            print("begin request")
-
-            s = requests.Session()
-            r = requests.post(url, data=jd, headers=str_headers)
-            print("status code : ", r.status_code)
-            print("end request")
-            if r.status_code == 200:
-                parsed = json.loads(r.text)
-                with open('data.mp3', 'wb') as outfile:
-                    outfile.write(base64.b64decode(parsed['audioContent']))
-                voich.play(discord.FFmpegPCMAudio('data.mp3'), after=print('playing'))
-                return
-
+            speech_text = text_mod
         else:
-            str_url = "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key="
-            str_headers = {'Content-Type': 'application/json; charset=utf-8'}
-            url = str_url + str_api_key
-            str_json_data = {
-                'input': {
-                    'text': message.content
-                },
-                'voice': {
-                    'languageCode': 'ja-JP',
-                    'name': 'ja-JP-Wavenet-C',
-                    'ssmlGender': 'MALE'
-                },
-                'audioConfig': {
-                    'audioEncoding': 'MP3'
-                }
+            speech_text = message.content
+        str_url = "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key="
+        str_headers = {'Content-Type': 'application/json; charset=utf-8'}
+        url = str_url + str_api_key
+        str_json_data = {
+            'input': {
+                'text': speech_text
+            },
+            'voice': {
+                'languageCode': language,
+                'name': language + '-Wavenet-C',
+                'ssmlGender': 'MALE'
+            },
+            'audioConfig': {
+                'audioEncoding': 'MP3'
             }
-            jd = json.dumps(str_json_data)
-            # print(jd)
-            print("begin request")
+        }
+        jd = json.dumps(str_json_data)
+        # print(jd)
+        print("begin request")
 
-            s = requests.Session()
-            r = requests.post(url, data=jd, headers=str_headers)
-            print("status code : ", r.status_code)
-            print("end request")
-            if r.status_code == 200:
-                parsed = json.loads(r.text)
-                with open('data.mp3', 'wb') as outfile:
-                    outfile.write(base64.b64decode(parsed['audioContent']))
-                voich.play(discord.FFmpegPCMAudio('data.mp3'), after=print('playing'))
-                return
+        s = requests.Session()
+        r = requests.post(url, data=jd, headers=str_headers)
+        print("status code : ", r.status_code)
+        print("end request")
+        if r.status_code == 200:
+            parsed = json.loads(r.text)
+            with open('data.mp3', 'wb') as outfile:
+                outfile.write(base64.b64decode(parsed['audioContent']))
+            voich.play(discord.FFmpegPCMAudio('data.mp3'), after=print('playing'))
+            return
 
     await dispand(message)
 
