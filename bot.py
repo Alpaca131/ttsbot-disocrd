@@ -25,6 +25,14 @@ async def on_message(message):
     if message.author.bot:
         return
     if message.content.startswith('/connect'):
+        if message.content[9:] == '日本語' or 'JP' or 'Jp' or 'jp':
+            language = 'ja-JP'
+        if message.content[9:] == '韓国語' or 'KR' or 'Kr' or 'kr':
+            language = 'ko-KR'
+        if message.content[9:] == '中国語' or 'CH' or 'Ch' or 'ch':
+            language = 'cmn-CN'
+        if message.content[9:] == '英語' or 'EN' or 'En' or 'en':
+            language = 'en-US'
         voich = await discord.VoiceChannel.connect(message.author.voice.channel)
         voice_active = 'true'
     # 切断
