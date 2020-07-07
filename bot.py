@@ -22,6 +22,8 @@ async def on_ready():
 @client.event
 async def on_message(message):
     global voice_active, voich
+    if message.author.bot:
+        return
     if message.content.startswith('/connect'):
         voich = await discord.VoiceChannel.connect(message.author.voice.channel)
         voice_active = 'true'
@@ -31,37 +33,75 @@ async def on_message(message):
         voice_active = 'false'
 
     if voice_active == 'true':
-        str_url = "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key="
-        str_headers = {'Content-Type': 'application/json; charset=utf-8'}
-        url = str_url + str_api_key
-        str_json_data = {
-            'input': {
-                'text': message.content
-            },
-            'voice': {
-                'languageCode': 'ja-JP',
-                'name': 'ja-JP-Wavenet-C',
-                'ssmlGender': 'MALE'
-            },
-            'audioConfig': {
-                'audioEncoding': 'MP3'
+        if message.content.find('http') != -1:
+            pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
+            text_to_serch = message.content
+            url_list = re.findall(pattern, text_to_serch)
+            text_mod = message.content
+            for item in url_list:
+                text_mod = text_mod.remove
+            str_url = "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key="
+            str_headers = {'Content-Type': 'application/json; charset=utf-8'}
+            url = str_url + str_api_key
+            str_json_data = {
+                'input': {
+                    'text': text_mod
+                },
+                'voice': {
+                    'languageCode': 'ja-JP',
+                    'name': 'ja-JP-Wavenet-C',
+                    'ssmlGender': 'MALE'
+                },
+                'audioConfig': {
+                    'audioEncoding': 'MP3'
+                }
             }
-        }
-        jd = json.dumps(str_json_data)
-        # print(jd)
-        print("begin request")
+            jd = json.dumps(str_json_data)
+            # print(jd)
+            print("begin request")
 
-        s = requests.Session()
-        r = requests.post(url, data=jd, headers=str_headers)
-        print("status code : ", r.status_code)
-        print("end request")
-        if r.status_code == 200:
-            parsed = json.loads(r.text)
-            with open('data.mp3', 'wb') as outfile:
-                outfile.write(base64.b64decode(parsed['audioContent']))
-            voich.play(discord.FFmpegPCMAudio('data.mp3'), after=print('playing'))
-            return
+            s = requests.Session()
+            r = requests.post(url, data=jd, headers=str_headers)
+            print("status code : ", r.status_code)
+            print("end request")
+            if r.status_code == 200:
+                parsed = json.loads(r.text)
+                with open('data.mp3', 'wb') as outfile:
+                    outfile.write(base64.b64decode(parsed['audioContent']))
+                voich.play(discord.FFmpegPCMAudio('data.mp3'), after=print('playing'))
+                return
 
+    else:
+            str_url = "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key="
+            str_headers = {'Content-Type': 'application/json; charset=utf-8'}
+            url = str_url + str_api_key
+            str_json_data = {
+                'input': {
+                    'text': message.content
+                },
+                'voice': {
+                    'languageCode': 'ja-JP',
+                    'name': 'ja-JP-Wavenet-C',
+                    'ssmlGender': 'MALE'
+                },
+                'audioConfig': {
+                    'audioEncoding': 'MP3'
+                }
+            }
+            jd = json.dumps(str_json_data)
+            # print(jd)
+            print("begin request")
+
+            s = requests.Session()
+            r = requests.post(url, data=jd, headers=str_headers)
+            print("status code : ", r.status_code)
+            print("end request")
+            if r.status_code == 200:
+                parsed = json.loads(r.text)
+                with open('data.mp3', 'wb') as outfile:
+                    outfile.write(base64.b64decode(parsed['audioContent']))
+                voich.play(discord.FFmpegPCMAudio('data.mp3'), after=print('playing'))
+                return
 
     await dispand(message)
 
