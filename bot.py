@@ -25,7 +25,7 @@ async def on_message(message):
     if message.author.bot:
         return
     if message.content == '/release note':
-        await message.channel.send('◆2020/07/09(1:50)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n\nバグフィックス\n・言語選択が機能しないバグを修正')
+        await message.channel.send('◆2020/07/09(2:10)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n\nバグフィックス\n・言語選択が機能しないバグを修正')
     if message.content.startswith('/connect'):
         if message.author.voice is None:
             await message.channel.send('VCに接続してからもう一度お試し下さい。')
