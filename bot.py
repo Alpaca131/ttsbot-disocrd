@@ -26,18 +26,18 @@ async def on_message(message):
     if message.author.bot:
         return
     if message.content == '//help':
-        await message.channel.send('このBotのヘルプです。\n\n「/connect 言語」\n･･･自分が接続しているVCにBotを接続させます。\n言語:\n・指定なし(もしくはjp)･･･日本語\nen･･･英語\nkr･･･韓国語\nch･･･中国語\n\n「/discon」\n･･･**自分が接続しているVC**からこのBotを切断します。\n\n「/dispand-(on/of)」\n･･･Discordのメッセージリンクの展開機能をオン/オフします。')
+        await message.channel.send('このBotのヘルプです。\n\n「//connect 言語」\n自分が接続しているVCにBotを接続させます。\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n「//discon」\n**自分が接続しているVC**からこのBotを切断します。\n\n「//dispand-(on/of)」\nDiscordのメッセージリンクの展開機能をオン/オフします。')
     if message.content == '//dispand-off':
-        await message.channel.send('メッセージリンクの展開をオフにしました。\n「/dispand-on」でオンにできます。')
+        await message.channel.send('メッセージリンクの展開をオフにしました。\n「//dispand-on」でオンにできます。')
         dispand = 'off'
         return
     if message.content == '//dispand-on':
-        await message.channel.send('メッセージリンクの展開をオンにしました。\n「/dispand-off」でオフにできます。')
+        await message.channel.send('メッセージリンクの展開をオンにしました。\n「//dispand-off」でオフにできます。')
         dispand = 'on'
         return
     if message.content == '//release note':
         await message.channel.send('◆2020/07/09(2:10)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n\nバグフィックス\n・言語選択が機能しないバグを修正')
-    if message.content.startswith('/connect'):
+    if message.content.startswith('//con'):
         if message.author.voice is None:
             await message.channel.send('VCに接続してからもう一度お試し下さい。')
             return
