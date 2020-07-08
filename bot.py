@@ -25,7 +25,7 @@ async def on_message(message):
     if message.author.bot:
         return
     if message.content == '/release note':
-        await message.channel.send('◆2020/07/09(0:58)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n\nバグフィックス\n・言語選択が機能しないバグを修正')
+        await message.channel.send('◆2020/07/09(1:04)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n\nバグフィックス\n・言語選択が機能しないバグを修正')
     if message.content.startswith('/connect'):
         if message.author.voice is None:
             await message.channel.send('VCに接続してからもう一度お試し下さい。')
@@ -60,7 +60,7 @@ async def on_message(message):
 
     # 切断
     if message.content == '/discon':
-        if message.guild.id not in voice_active:
+        if str(message.guild.id) not in voice_active:
             await message.channel.send('現在Botはどのチャンネルにも接続していません。')
             return
         voich = message.guild.voice_client
@@ -71,7 +71,7 @@ async def on_message(message):
         voice_active.remove(message.guild.id)
         return
 
-    if message.guild.id in voice_active:
+    if str(message.guild.id) in voice_active:
         if message.content.find('http') != -1:
             pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
             text_to_serch = message.content
