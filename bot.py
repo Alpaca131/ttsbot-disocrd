@@ -25,15 +25,17 @@ async def on_message(message):
     global voice_active, dispand
     if message.author.bot:
         return
-    if message.content == '/dispand-off':
+    if message.content == '//help':
+        await message.channel.send('このBotのヘルプです。\n\n「/connect 言語」\n･･･自分が接続しているVCにBotを接続させます。\n言語:\n・指定なし(もしくはjp)･･･日本語\nen･･･英語\nkr･･･韓国語\nch･･･中国語\n\n「/discon」\n･･･**自分が接続しているVC**からこのBotを切断します。\n\n「/dispand-(on/of)」\n･･･Discordのメッセージリンクの展開機能をオン/オフします。')
+    if message.content == '//dispand-off':
         await message.channel.send('メッセージリンクの展開をオフにしました。\n「/dispand-on」でオンにできます。')
         dispand = 'off'
         return
-    if message.content == '/dispand-on':
+    if message.content == '//dispand-on':
         await message.channel.send('メッセージリンクの展開をオンにしました。\n「/dispand-off」でオフにできます。')
         dispand = 'on'
         return
-    if message.content == '/release note':
+    if message.content == '//release note':
         await message.channel.send('◆2020/07/09(2:10)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n\nバグフィックス\n・言語選択が機能しないバグを修正')
     if message.content.startswith('/connect'):
         if message.author.voice is None:
@@ -78,7 +80,7 @@ async def on_message(message):
 
 
     # 切断
-    if message.content == '/discon':
+    if message.content == '//discon':
         if str(message.guild.id) not in voice_active:
             await message.channel.send('現在Botはどのチャンネルにも接続していません。')
             return
