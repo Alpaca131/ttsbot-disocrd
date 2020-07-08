@@ -25,31 +25,34 @@ async def on_message(message):
     if message.author.bot:
         return
     if message.content == '/release note':
-        await message.channel.send('◆2020/07/09(1:15)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n\nバグフィックス\n・言語選択が機能しないバグを修正')
+        await message.channel.send('◆2020/07/09(1:20)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n\nバグフィックス\n・言語選択が機能しないバグを修正')
     if message.content.startswith('/connect'):
         if message.author.voice is None:
             await message.channel.send('VCに接続してからもう一度お試し下さい。')
             return
-        voice_active.append(message.guild.id)
         await message.channel.send(message.author.voice.channel.name + 'に参加しました。')
         if message.content[9:] == '日本語' or 'JP' or 'Jp' or 'jp' or None:
             print('JP')
             language = 'ja-JP'
+            voice_active.append(message.guild.id)
             await discord.VoiceChannel.connect(message.author.voice.channel)
             return
         if message.content[9:] == '韓国語' or 'JP' or 'Jp' or 'jp':
             print('KR')
             language = 'ko-KR'
+            voice_active.append(message.guild.id)
             await discord.VoiceChannel.connect(message.author.voice.channel)
             return
         if message.content[9:] == '中国語' or 'CH' or 'Ch' or 'or':
             print('CH')
             language = 'cmn-CN'
+            voice_active.append(message.guild.id)
             await discord.VoiceChannel.connect(message.author.voice.channel)
             return
         if message.content[9:] == '英語' or 'EN' or 'En' or 'en':
             print('EN')
             language = 'en-US'
+            voice_active.append(message.guild.id)
             await discord.VoiceChannel.connect(message.author.voice.channel)
             return
 
