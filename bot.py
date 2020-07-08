@@ -27,7 +27,7 @@ async def on_message(message):
     if message.content == '//help':
         await message.channel.send('このBotのヘルプです。\n\n「//connect 言語」\n自分が接続しているVCにBotを接続させます。\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n「//discon」\n**自分が接続しているVC**からこのBotを切断します。\n\n「//release note」\nこのBotの最新のアップデート内容を確認できます。')
     if message.content == '//release note':
-        await message.channel.send('◆2020/07/09(2:10)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n\nバグフィックス\n・言語選択が機能しないバグを修正')
+        await message.channel.send('◆2020/07/09(3:06)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n・ヘルプを追加\n\nバグフィックス\n・言語選択が機能しないバグを修正')
     if message.content.startswith('//con'):
         if message.author.voice is None:
             await message.channel.send('VCに接続してからもう一度お試し下さい。')
