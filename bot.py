@@ -134,7 +134,7 @@ async def on_message(message):
             voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + 'data.mp3'), after=print('playing'))
             return
 
-    if dispand = 'on':
+    if dispand == 'on':
         await dispand(message)
 
 client.run(TOKEN)
