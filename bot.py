@@ -40,6 +40,7 @@ async def on_message(message):
         voich = await discord.VoiceChannel.connect(message.author.voice.channel)
         voice_active = 'true'
 
+
     # 切断
     if message.content.startswith('/discon'):
         await voich.disconnect()
