@@ -31,19 +31,19 @@ async def on_message(message):
             await message.channel.send('VCに接続してからもう一度お試し下さい。')
             return
         await message.channel.send(message.author.voice.channel.name + 'に接続しました。')
-        if message.content[9:] == '日本語' or 'JP' or 'Jp' or 'jp' or '':
+        if message.content[9:] == '日本語' or 'JP' or 'Jp' or 'jp':
             print('JP')
             language = 'ja-JP'
             await discord.VoiceChannel.connect(message.author.voice.channel)
             voice_active[str(message.guild.id)] = language
             return
-        if message.content[9:] == '韓国語' or 'JP' or 'Jp' or 'jp':
+        if message.content[9:] == '韓国語' or 'KR' or 'Kr' or 'kr':
             print('KR')
             language = 'ko-KR'
             await discord.VoiceChannel.connect(message.author.voice.channel)
             voice_active[str(message.guild.id)] = language
             return
-        if message.content[9:] == '中国語' or 'CH' or 'Ch' or 'or':
+        if message.content[9:] == '中国語' or 'CH' or 'Ch' or 'ch':
             print('CH')
             language = 'cmn-CN'
             await discord.VoiceChannel.connect(message.author.voice.channel)
@@ -52,6 +52,12 @@ async def on_message(message):
         if message.content[9:] == '英語' or 'EN' or 'En' or 'en':
             print('EN')
             language = 'en-US'
+            await discord.VoiceChannel.connect(message.author.voice.channel)
+            voice_active[str(message.guild.id)] = language
+            return
+        else:
+            print('else-JP')
+            language = 'ja-JP'
             await discord.VoiceChannel.connect(message.author.voice.channel)
             voice_active[str(message.guild.id)] = language
             return
