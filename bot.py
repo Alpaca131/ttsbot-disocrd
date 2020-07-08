@@ -9,6 +9,7 @@ from discord.ext import tasks
 client = discord.Client()
 TOKEN = os.environ['DISCORD_BOT_TOKEN']
 str_api_key = os.environ['GCP_API']
+dispand = 'on'
 voice_active = {}
 
 
@@ -21,8 +22,16 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global voice_active
+    global voice_active, dispand
     if message.author.bot:
+        return
+    if message.content == '/dispand-off':
+        await message.channel.send('メッセージリンクの展開をオフにしました。\n「/dispand-on」でオンにできます。')
+        dispand = 'off'
+        return
+    if message.content == '/dispand-on':
+        await message.channel.send('メッセージリンクの展開をオンにしました。\n「/dispand-off」でオフにできます。')
+        dispand = 'on'
         return
     if message.content == '/release note':
         await message.channel.send('◆2020/07/09(2:10)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n\nバグフィックス\n・言語選択が機能しないバグを修正')
@@ -125,6 +134,7 @@ async def on_message(message):
             voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + 'data.mp3'), after=print('playing'))
             return
 
-    await dispand(message)
+    if dispand = 'on':
+        await dispand(message)
 
 client.run(TOKEN)
