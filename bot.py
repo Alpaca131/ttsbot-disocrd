@@ -9,7 +9,7 @@ from discord.ext import tasks
 client = discord.Client()
 TOKEN = os.environ['DISCORD_BOT_TOKEN']
 str_api_key = os.environ['GCP_API']
-voice_active = []
+voice_active = {}
 
 
 @client.event
@@ -21,36 +21,39 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global voice_active, language
+    global voice_active
     if message.author.bot:
         return
     if message.content == '/release note':
-        await message.channel.send('◆2020/07/09(1:28)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n\nバグフィックス\n・言語選択が機能しないバグを修正')
+        await message.channel.send('◆2020/07/09(1:50)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n\nバグフィックス\n・言語選択が機能しないバグを修正')
     if message.content.startswith('/connect'):
         if message.author.voice is None:
             await message.channel.send('VCに接続してからもう一度お試し下さい。')
             return
-        voice_active.append(str(message.guild.id))
-        await message.channel.send(message.author.voice.channel.name + 'に参加しました。')
-        if message.content[9:] == '日本語' or 'JP' or 'Jp' or 'jp' or None:
+        await message.channel.send(message.author.voice.channel.name + 'に接続しました。')
+        if message.content[9:] == '日本語' or 'JP' or 'Jp' or 'jp' or '':
             print('JP')
             language = 'ja-JP'
             await discord.VoiceChannel.connect(message.author.voice.channel)
+            voice_active[str(message.guild.id)] = language
             return
         if message.content[9:] == '韓国語' or 'JP' or 'Jp' or 'jp':
             print('KR')
             language = 'ko-KR'
             await discord.VoiceChannel.connect(message.author.voice.channel)
+            voice_active[str(message.guild.id)] = language
             return
         if message.content[9:] == '中国語' or 'CH' or 'Ch' or 'or':
             print('CH')
             language = 'cmn-CN'
             await discord.VoiceChannel.connect(message.author.voice.channel)
+            voice_active[str(message.guild.id)] = language
             return
         if message.content[9:] == '英語' or 'EN' or 'En' or 'en':
             print('EN')
             language = 'en-US'
             await discord.VoiceChannel.connect(message.author.voice.channel)
+            voice_active[str(message.guild.id)] = language
             return
 
 
@@ -64,7 +67,7 @@ async def on_message(message):
             await message.channel.send('Botと同じVCに入ってからもう一度お試し下さい。')
             return
         await voich.disconnect()
-        voice_active.remove(message.guild.id)
+        del voice_active[str(message.guild.id)]
         return
 
     if str(message.guild.id) in voice_active:
@@ -78,6 +81,7 @@ async def on_message(message):
             speech_text = text_mod
         else:
             speech_text = message.content
+        language = voice_active[str(message.guild.id)]
         str_url = "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key="
         str_headers = {'Content-Type': 'application/json; charset=utf-8'}
         url = str_url + str_api_key
