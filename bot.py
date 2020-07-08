@@ -9,7 +9,6 @@ from discord.ext import tasks
 client = discord.Client()
 TOKEN = os.environ['DISCORD_BOT_TOKEN']
 str_api_key = os.environ['GCP_API']
-dispand = 'on'
 voice_active = {}
 
 
@@ -25,18 +24,8 @@ async def on_message(message):
     global voice_active, dispand
     if message.author.bot:
         return
-    if dispand == 'on':
-        await dispand(message)
     if message.content == '//help':
-        await message.channel.send('このBotのヘルプです。\n\n「//connect 言語」\n自分が接続しているVCにBotを接続させます。\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n「//discon」\n**自分が接続しているVC**からこのBotを切断します。\n\n「//dispand-(on/of)」\nDiscordのメッセージリンクの展開機能をオン/オフします。')
-    if message.content == '//dispand-off':
-        await message.channel.send('メッセージリンクの展開をオフにしました。\n「//dispand-on」でオンにできます。')
-        dispand = 'off'
-        return
-    if message.content == '//dispand-on':
-        await message.channel.send('メッセージリンクの展開をオンにしました。\n「//dispand-off」でオフにできます。')
-        dispand = 'on'
-        return
+        await message.channel.send('このBotのヘルプです。\n\n「//connect 言語」\n自分が接続しているVCにBotを接続させます。\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n「//discon」\n**自分が接続しているVC**からこのBotを切断します。\n\n「//release note」\nこのBotの最新のアップデート内容を確認できます。')
     if message.content == '//release note':
         await message.channel.send('◆2020/07/09(2:10)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n\nバグフィックス\n・言語選択が機能しないバグを修正')
     if message.content.startswith('//con'):
@@ -137,6 +126,6 @@ async def on_message(message):
             voich = message.guild.voice_client
             voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + 'data.mp3'), after=print('playing'))
             return
-
+    await dispand(message)
 
 client.run(TOKEN)
