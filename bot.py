@@ -25,7 +25,7 @@ async def on_message(message):
     if message.author.bot:
         return
     if message.content == '/release note':
-        await message.channel.send('◆2020/07/09(1:04)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n\nバグフィックス\n・言語選択が機能しないバグを修正')
+        await message.channel.send('◆2020/07/09(1:15)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n\nバグフィックス\n・言語選択が機能しないバグを修正')
     if message.content.startswith('/connect'):
         if message.author.voice is None:
             await message.channel.send('VCに接続してからもう一度お試し下さい。')
@@ -36,25 +36,21 @@ async def on_message(message):
             print('JP')
             language = 'ja-JP'
             await discord.VoiceChannel.connect(message.author.voice.channel)
-            voice_active = 'true'
             return
         if message.content[9:] == '韓国語' or 'JP' or 'Jp' or 'jp':
             print('KR')
             language = 'ko-KR'
             await discord.VoiceChannel.connect(message.author.voice.channel)
-            voice_active = 'true'
             return
         if message.content[9:] == '中国語' or 'CH' or 'Ch' or 'or':
             print('CH')
             language = 'cmn-CN'
             await discord.VoiceChannel.connect(message.author.voice.channel)
-            voice_active.append()
             return
         if message.content[9:] == '英語' or 'EN' or 'En' or 'en':
             print('EN')
             language = 'en-US'
             await discord.VoiceChannel.connect(message.author.voice.channel)
-            voice_active = 'true'
             return
 
 
