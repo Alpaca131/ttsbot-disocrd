@@ -9,7 +9,7 @@ from discord.ext import tasks
 client = discord.Client()
 TOKEN = os.environ['DISCORD_BOT_TOKEN']
 str_api_key = os.environ['GCP_API']
-voice_active = 'false'
+voice_active = []
 
 
 @client.event
@@ -21,32 +21,57 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global voice_active, voich, language
+    global voice_active, language
     if message.author.bot:
         return
+    if message.content == '/release note'
+        await message.channel.send('◆2020/07/09(0:55)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n\nバグフィックス\n・言語選択が機能しないバグを修正')
     if message.content.startswith('/connect'):
+        if message.author.voice is None:
+            await message.channel.send('VCに接続してからもう一度お試し下さい。')
+            return
+        voice_active.append(message.guild.id)
+        await message.channel.send(message.author.voice.channel.name + 'に参加しました。')
         if message.content[9:] == '日本語' or 'JP' or 'Jp' or 'jp' or None:
             print('JP')
             language = 'ja-JP'
+            await discord.VoiceChannel.connect(message.author.voice.channel)
+            voice_active = 'true'
+            return
         if message.content[9:] == '韓国語' or 'JP' or 'Jp' or 'jp':
             print('KR')
             language = 'ko-KR'
+            await discord.VoiceChannel.connect(message.author.voice.channel)
+            voice_active = 'true'
+            return
         if message.content[9:] == '中国語' or 'CH' or 'Ch' or 'or':
             print('CH')
             language = 'cmn-CN'
+            await discord.VoiceChannel.connect(message.author.voice.channel)
+            voice_active.append()
+            return
         if message.content[9:] == '英語' or 'EN' or 'En' or 'en':
             print('EN')
             language = 'en-US'
-        voich = await discord.VoiceChannel.connect(message.author.voice.channel)
-        voice_active = 'true'
+            await discord.VoiceChannel.connect(message.author.voice.channel)
+            voice_active = 'true'
+            return
 
 
     # 切断
-    if message.content.startswith('/discon'):
+    if message.content == '/discon':
+        if message.guild.id not in voice_active:
+            await message.channel.send('現在Botはどのチャンネルにも接続していません。')
+            return
+        voich = message.guild.voice_client
+        if voich is None:
+            await message.channel.send('Botと同じVCに入ってからもう一度お試し下さい。')
+            return
         await voich.disconnect()
-        voice_active = 'false'
+        voice_active.remove(message.guild.id)
+        return
 
-    if voice_active == 'true':
+    if message.guild.id in voice_active:
         if message.content.find('http') != -1:
             pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
             text_to_serch = message.content
@@ -83,9 +108,10 @@ async def on_message(message):
         print("end request")
         if r.status_code == 200:
             parsed = json.loads(r.text)
-            with open('data.mp3', 'wb') as outfile:
+            with open(str(message.guild.id) + 'data.mp3', 'wb') as outfile:
                 outfile.write(base64.b64decode(parsed['audioContent']))
-            voich.play(discord.FFmpegPCMAudio('data.mp3'), after=print('playing'))
+            voich = message.guild.voice_client
+            voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + 'data.mp3'), after=print('playing'))
             return
 
     await dispand(message)
