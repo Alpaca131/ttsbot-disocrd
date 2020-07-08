@@ -53,7 +53,7 @@ async def on_message(message):
             url_list = re.findall(pattern, text_to_serch)
             text_mod = message.content
             for item in url_list:
-                text_mod = text_mod.remove
+                text_mod = text_mod.remove(item)
             speech_text = text_mod
         else:
             speech_text = message.content
