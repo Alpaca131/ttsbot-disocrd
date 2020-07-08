@@ -25,6 +25,8 @@ async def on_message(message):
     global voice_active, dispand
     if message.author.bot:
         return
+    if dispand == 'on':
+        await dispand(message)
     if message.content == '//help':
         await message.channel.send('このBotのヘルプです。\n\n「//connect 言語」\n自分が接続しているVCにBotを接続させます。\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n「//discon」\n**自分が接続しているVC**からこのBotを切断します。\n\n「//dispand-(on/of)」\nDiscordのメッセージリンクの展開機能をオン/オフします。')
     if message.content == '//dispand-off':
@@ -136,7 +138,5 @@ async def on_message(message):
             voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + 'data.mp3'), after=print('playing'))
             return
 
-    if dispand == 'on':
-        await dispand(message)
 
 client.run(TOKEN)
