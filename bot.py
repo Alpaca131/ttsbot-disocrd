@@ -5,11 +5,13 @@ import discord
 import os
 from dispander import dispand
 from discord.ext import tasks
+import re
 
 client = discord.Client()
 TOKEN = os.environ['DISCORD_BOT_TOKEN']
 str_api_key = os.environ['GCP_API']
 voice_active = {}
+spk_rate_dic = {}
 
 
 @client.event
@@ -21,17 +23,17 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global voice_active, dispand
+    global voice_active, dispand, spk_rate_dic
     if message.author.bot:
         return
-    if message.content == '//help':
-        await message.channel.send('このBotのヘルプです。\n\n「//connect 言語」\n自分が接続しているVCにBotを接続させます。\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n「//discon」\n**自分が接続しているVCから**このBotを切断します。\n\n「//release note」\nこのBotの最新のアップデート内容を確認できます。\n\n「//invite」\nこのBotの招待リンクを送ります。ご自由にお使い下さい。')
-    if message.content == '//release note':
-        await message.channel.send('◆2020/07/09(6:22)リリース◆\n\n機能追加\n・複数サーバーでの同時実行に対応\n・ヘルプを追加\n\nバグフィックス\n・言語選択が機能しないバグを修正')
-    if message.content == '//invite':
-        await message.channel.send('このBotの招待リンクです。導入してもらえると喜びます。\nhttps://discord.com/api/oauth2/authorize?client_id=727508841368911943&permissions=3153472&scope=bot')
+    if message.content == '!help':
+        await message.channel.send('このBotのヘルプです。\n\n「!con 言語」\n(使用例：!con en)\n自分が接続しているVCにBotを接続させます。\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n「!discon」\n**自分が接続しているVCから**このBotを切断します。\n\n「!release note」\nこのBotの最新のアップデート内容を確認できます。\n\n「!invite」\nこのBotの招待リンクを送ります。ご自由にお使い下さい。')
+    if message.content == '!release note':
+        await message.channel.send('◆2020/07/09(19:11)リリース◆\n\n機能追加\n・プレフィックスを「//」から「!」へ変更\n・ヘルプを更新\n\nバグフィックス\n・複数サーバーで同時に使用している際、言語選択が正常に機能しない事があるバグを修正')
+    if message.content == '!invite':
+        await message.channel.send('このBotの招待リンクです。導入してもらえると喜びます。\n開発者:Alpaca#8032\nhttps://discord.com/api/oauth2/authorize?client_id=727508841368911943&permissions=3153472&scope=bot')
 
-    if message.content.startswith('//con'):
+    if message.content.startswith('!con '):
         if message.author.voice is None:
             await message.channel.send('VCに接続してからもう一度お試し下さい。')
             return
@@ -40,41 +42,34 @@ async def on_message(message):
             print(message.content[9:])
             print('JP')
             language = 'ja-JP'
-            await discord.VoiceChannel.connect(message.author.voice.channel)
             voice_active[str(message.guild.id)] = language
-            return
         if message.content[9:] =='kr':
             print(message.content[9:])
             print('KR')
             language = 'ko-KR'
-            await discord.VoiceChannel.connect(message.author.voice.channel)
             voice_active[str(message.guild.id)] = language
-            return
         if message.content[9:] == 'ch':
             print(message.content[9:])
             print('CH')
             language = 'cmn-CN'
-            await discord.VoiceChannel.connect(message.author.voice.channel)
             voice_active[str(message.guild.id)] = language
-            return
         if message.content[9:] == 'en':
             print(message.content[9:])
             print('EN')
             language = 'en-US'
-            await discord.VoiceChannel.connect(message.author.voice.channel)
             voice_active[str(message.guild.id)] = language
-            return
         else:
             print('else-JP')
             print(message.content[9:])
             language = 'ja-JP'
-            await discord.VoiceChannel.connect(message.author.voice.channel)
             voice_active[str(message.guild.id)] = language
-            return
+
+        await discord.VoiceChannel.connect(message.author.voice.channel)
+        return
 
 
     # 切断
-    if message.content == '//discon':
+    if message.content == '!discon':
         if str(message.guild.id) not in voice_active:
             await message.channel.send('現在Botはどのチャンネルにも接続していません。')
             return
