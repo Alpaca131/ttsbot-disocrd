@@ -29,7 +29,7 @@ async def on_message(message):
     if message.content == '!help':
         await message.channel.send('このBotのヘルプです。\n\n「!con 言語」\n(使用例：!con en)\n自分が接続しているVCにBotを接続させます。\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n「!discon」\n**自分が接続しているVCから**このBotを切断します。\n\n「!release note」\nこのBotの最新のアップデート内容を確認できます。\n\n「!invite」\nこのBotの招待リンクを送ります。ご自由にお使い下さい。')
     if message.content == '!release note':
-        await message.channel.send('◆2020/07/09(19:11)リリース◆\n\n機能追加\n・プレフィックスを「//」から「!」へ変更\n・ヘルプを更新\n\nバグフィックス\n・複数サーバーで同時に使用している際、言語選択が正常に機能しない事があるバグを修正')
+        await message.channel.send('◆2020/07/09(19:27)リリース◆\n\n機能追加\n・プレフィックスを「//」から「!」へ変更\n・ヘルプを更新\n\nバグフィックス\n・複数サーバーで同時に使用している際、言語選択が正常に機能しない事があるバグを修正\n・プレフィックス変更によって言語選択が出来なくなっていたバグを修正')
     if message.content == '!invite':
         await message.channel.send('このBotの招待リンクです。導入してもらえると喜びます。\n開発者:Alpaca#8032\nhttps://discord.com/api/oauth2/authorize?client_id=727508841368911943&permissions=3153472&scope=bot')
 
@@ -38,29 +38,29 @@ async def on_message(message):
             await message.channel.send('VCに接続してからもう一度お試し下さい。')
             return
         await message.channel.send(message.author.voice.channel.name + 'に接続しました。')
-        if message.content[9:] == 'jp':
-            print(message.content[9:])
+        if message.content[5:7] == 'jp':
+            print(message.content[5:7])
             print('JP')
             language = 'ja-JP'
             voice_active[str(message.guild.id)] = language
-        if message.content[9:] =='kr':
-            print(message.content[9:])
+        if message.content[5:7] =='kr':
+            print(message.content[5:7])
             print('KR')
             language = 'ko-KR'
             voice_active[str(message.guild.id)] = language
-        if message.content[9:] == 'ch':
-            print(message.content[9:])
+        if message.content[5:7] == 'ch':
+            print(message.content[5:7])
             print('CH')
             language = 'cmn-CN'
             voice_active[str(message.guild.id)] = language
-        if message.content[9:] == 'en':
-            print(message.content[9:])
+        if message.content[5:7] == 'en':
+            print(message.content[5:7])
             print('EN')
             language = 'en-US'
             voice_active[str(message.guild.id)] = language
         else:
             print('else-JP')
-            print(message.content[9:])
+            print(message.content[5:7])
             language = 'ja-JP'
             voice_active[str(message.guild.id)] = language
 
