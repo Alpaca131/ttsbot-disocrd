@@ -33,7 +33,7 @@ async def on_message(message):
     if message.content == '!invite':
         await message.channel.send('このBotの招待リンクです。導入してもらえると喜びます。\n開発者:Alpaca#8032\nhttps://discord.com/api/oauth2/authorize?client_id=727508841368911943&permissions=3153472&scope=bot')
 
-    if message.content.startswith('!con '):
+    if message.content.startswith('!con'):
         if message.author.voice is None:
             await message.channel.send('VCに接続してからもう一度お試し下さい。')
             return
