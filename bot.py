@@ -26,6 +26,7 @@ async def on_message(message):
     global voice_active, dispand, spk_rate_dic
     if message.author.bot:
         return
+    await dispand(message)
     if message.content == '!help':
         await message.channel.send('このBotのヘルプです。\n\n「!con 言語」\n(使用例：!con en)\n自分が接続しているVCにBotを接続させます。\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n「!discon」\n**自分が接続しているVCから**このBotを切断します。\n\n「!release note」\nこのBotの最新のアップデート内容を確認できます。\n\n「!invite」\nこのBotの招待リンクを送ります。ご自由にお使い下さい。')
     if message.content == '!release note':
@@ -125,6 +126,5 @@ async def on_message(message):
             voich = message.guild.voice_client
             voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + 'data.mp3'), after=print('playing'))
             return
-    await dispand(message)
 
 client.run(TOKEN)
