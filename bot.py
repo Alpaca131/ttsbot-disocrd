@@ -19,6 +19,7 @@ voice_active_ch = []
 @client.event
 async def on_ready():
     print('ready')
+    await client.change_presence(activity=discord.Game(name="「t.help」でヘルプ", type=1))
     if not discord.opus.is_loaded():
         # もし未ロードだったら
         discord.opus.load_opus("heroku-buildpack-libopus")
@@ -37,6 +38,10 @@ async def on_message(message):
     if message.content == 't.support':
         await message.channel.send('このBotのサポートサーバーです。バグ報告・要望等あればこちらにお願いします。お気軽にどうぞ。\nhttps://discord.gg/DbtZAcX')
 
+    if message.guild.id is None:
+        if message.author.id == 539910964724891719:
+            if message.content == 'サーバー':
+                await message.channel.send(len(client.guilds))
     if message.content.startswith('t.con'):
         global voice_active
         if message.author.voice is None:
