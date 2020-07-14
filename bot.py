@@ -38,10 +38,10 @@ async def on_message(message):
     if message.content == 't.support':
         await message.channel.send('このBotのサポートサーバーです。バグ報告・要望等あればこちらにお願いします。お気軽にどうぞ。\nhttps://discord.gg/DbtZAcX')
 
-    if message.guild.id is None:
+    if message.guild is None:
         if message.author.id == 539910964724891719:
             if message.content == 'サーバー':
-                await message.channel.send(len(client.guilds))
+                await message.channel.send(str(len(client.guilds)))
     if message.content.startswith('t.con'):
         global voice_active
         if message.author.voice is None:
