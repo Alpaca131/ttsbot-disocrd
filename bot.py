@@ -102,7 +102,7 @@ async def on_message(message):
             await message.channel.send('現在Botはどのチャンネルにも参加していません。')
         return
 
-    if message.guild.id in voice_active_guild or message.channel.id in voice_active_ch
+    if message.guild.id in voice_active_guild or message.channel.id in voice_active_ch:
         if message.content.find('http') != -1:
             pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
             text_to_serch = message.content
