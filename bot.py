@@ -10,8 +10,10 @@ import re
 client = discord.Client()
 TOKEN = os.environ['DISCORD_BOT_TOKEN']
 str_api_key = os.environ['GCP_API']
-voice_active = {}
+voice_active_guild = []
+lang = {}
 spk_rate_dic = {}
+voice_active_ch = []
 
 
 @client.event
@@ -26,64 +28,81 @@ async def on_message(message):
     global voice_active, dispand, spk_rate_dic
     if message.author.bot:
         return
-    await dispand(message)
-    if message.content == '!help':
-        await message.channel.send('このBotのヘルプです。\n\n「!con 言語」\n(使用例：!con en)\n自分が接続しているVCにBotを接続させます。\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n「!discon」\n**自分が接続しているVCから**このBotを切断します。\n\n「!release note」\nこのBotの最新のアップデート内容を確認できます。\n\n「!invite」\nこのBotの招待リンクを送ります。ご自由にお使い下さい。')
-    if message.content == '!release note':
-        await message.channel.send('◆2020/07/11(19:51)リリース◆\n\n機能追加\n・なし\n\nバグフィックス\n・言語選択で日本語と英語しか選択できない問題を修正')
-    if message.content == '!invite':
+    if message.content == 't.help':
+        await message.channel.send('このBotのヘルプです。\n\n「t.con (オプション:反応する対象、言語)」\n(使用例：t.con en server)\n自分が接続しているVCにBotを接続させます。\n反応する対象：\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応\n\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n「!discon」\n**自分が接続しているVCから**このBotを切断します。\n\n「t.release note」\nこのBotの最新のアップデート内容を確認できます。\n\n「t.invite」\nこのBotの招待リンクを送ります。ご自由にお使い下さい。')
+    if message.content == 't.release note':
+        await message.channel.send('◆2020/07/14(21:46)リリース◆\n\n機能追加\n・プレフィックスの変更(h.)・切断コマンドを「t.dc」に変更\n・Botが反応する対象を選択可能に。\n(デフォルトはチャンネルです。)\n\nバグフィックス\n・サーバー全体で反応するバグを修正')
+    if message.content == 't.invite':
         await message.channel.send('このBotの招待リンクです。導入してもらえると喜びます。\n開発者:Alpaca#8032\nhttps://discord.com/api/oauth2/authorize?client_id=727508841368911943&permissions=3153472&scope=bot')
 
-    if message.content.startswith('!con'):
+    if message.content.startswith('t.con'):
         global voice_active
         if message.author.voice is None:
             await message.channel.send('VCに接続してからもう一度お試し下さい。')
             return
-        await message.channel.send(message.author.voice.channel.name + 'に接続しました。')
-        if message.content[5:7] == 'jp':
-            print(message.content[5:7])
+        # チャンネル
+        if message.content.find('channel')!=-1:
+            print('channel')
+            detect = '(チャンネルに反応)'
+            voice_active_ch.append(message.channel.id)
+        # サーバー
+        elif message.content.find('server')!=-1:
+            print('guild')
+            detect = '(サーバー全体に反応)'
+            voice_active_guild.append(message.guild.id)
+        # その他
+        else:
+            print('else-ch')
+            detect = '(チャンネルに反応)'
+            voice_active_ch.append(message.channel.id)
+
+        await message.channel.send(message.author.voice.channel.name + 'に接続しました。 ' + detect)
+        if message.content[6:8] == 'jp':
+            print(message.content[6:8])
             print('JP')
             language = 'ja-JP'
-            voice_active[str(message.guild.id)] = language
-        elif message.content[5:7] =='kr':
-            print(message.content[5:7])
+            lang[str(message.guild.id)] = language
+        elif message.content[6:8] =='kr':
+            print(message.content[6:8])
             print('KR')
             language = 'ko-KR'
-            voice_active[str(message.guild.id)] = language
-        elif message.content[5:7] == 'ch':
-            print(message.content[5:7])
+            lang[str(message.guild.id)] = language
+        elif message.content[6:9] == 'ch':
+            print(message.content[6:8])
             print('CH')
             language = 'cmn-CN'
-            voice_active[str(message.guild.id)] = language
-        elif message.content[5:7] == 'en':
-            print(message.content[5:7])
+            lang[str(message.guild.id)] = language
+        elif message.content[6:8] == 'en':
+            print(message.content[6:8])
             print('EN')
             language = 'en-US'
-            voice_active[str(message.guild.id)] = language
+            lang[str(message.guild.id)] = language
         else:
             print('else-JP')
-            print(message.content[5:7])
+            print(message.content[6:8])
             language = 'ja-JP'
-            voice_active[str(message.guild.id)] = language
+            lang[str(message.guild.id)] = language
 
         await discord.VoiceChannel.connect(message.author.voice.channel)
         return
 
 
     # 切断
-    if message.content == '!discon':
-        if str(message.guild.id) not in voice_active:
-            await message.channel.send('現在Botはどのチャンネルにも接続していません。')
-            return
+    if message.content == 't.dc':
         voich = message.guild.voice_client
-        if voich is None:
-            await message.channel.send('Botと同じVCに入ってからもう一度お試し下さい。')
-            return
-        await voich.disconnect()
-        del voice_active[str(message.guild.id)]
+        if message.guild.id in voice_active_guild:
+            voice_active_guild.remove(message.guild.id)
+            del lang[str(message.guild.id)]
+            await voich.disconnect()
+        elif message.channel.id in voice_active_ch:
+            voice_active_ch.remove(message.channel.id)
+            del lang[str(message.guild.id)]
+            await voich.disconnect()
+        else:
+            await message.channel.send('現在Botはどのチャンネルにも参加していません。')
         return
 
-    if str(message.guild.id) in voice_active:
+    if message.guild.id in voice_active_guild or message.channel.id in voice_active_ch
         if message.content.find('http') != -1:
             pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
             text_to_serch = message.content
@@ -94,7 +113,7 @@ async def on_message(message):
             speech_text = text_mod
         else:
             speech_text = message.content
-        language = voice_active[str(message.guild.id)]
+        language = lang[str(message.guild.id)]
         str_url = "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key="
         str_headers = {'Content-Type': 'application/json; charset=utf-8'}
         url = str_url + str_api_key
