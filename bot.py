@@ -41,6 +41,11 @@ async def on_message(message):
     global voice_active, dispand, spk_rate_dic, expand_off
     if message.author.bot:
         return
+    if message.guild is None:
+        if message.author.id == 539910964724891719:
+            if message.content == 'サーバー':
+                await message.channel.send(str(len(client.guilds)))
+                return
     if message.guild.id not in expand_off:
         await dispand(message)
     if message.content == 't.help':
@@ -92,11 +97,6 @@ async def on_message(message):
                 await message.channel.send('メッセージ展開は既にオフです。')
                 return
 
-    if message.guild is None:
-        if message.author.id == 539910964724891719:
-            if message.content == 'サーバー':
-                await message.channel.send(str(len(client.guilds)))
-                return
     if message.content.startswith('t.con'):
         global voice_active
         if message.author.voice is None:
