@@ -47,7 +47,7 @@ async def on_message(message):
         await message.channel.send('このBotのヘルプです。\n\n**「t.con (オプション：反応する対象、言語)」**\n(使用例：t.con en server)\n自分が接続しているVCにBotを接続させます。\n反応する対象：\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応\n\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n**「t.dc」**\n自分が接続しているVCからこのBotを切断します。\n\n**「t.expand (オプション：on/off)」\nリンク展開機能のオンオフを切り替えます。**\n\n**「t.release note」**\nこのBotの最新のアップデート内容を確認できます。\n\n**「t.invite」**\nこのBotの招待リンクを送ります。ご自由にお使い下さい。\n\n**「t.support」**\nこのBotのサポートサーバーの招待リンクを送ります。バグ報告・要望等あればこちらまでお願いします。')
         return
     if message.content == 't.release note':
-        await message.channel.send('◆2020/07/14(22:07)リリース◆\n\n機能追加\n・サポートサーバーへのリンクを追加\n\nバグフィックス\n・なし')
+        await message.channel.send('◆2020/07/15(11:13)リリース◆\n\n機能追加\n・リンク展開を実装。コマンドでオン/オフの切り替えが可能。\n\nバグフィックス\n・なし')
         return
     if message.content == 't.invite':
         await message.channel.send('このBotの招待リンクです。導入してもらえると喜びます。\n開発者:Alpaca#8032\nhttps://discord.com/api/oauth2/authorize?client_id=727508841368911943&permissions=3153472&scope=bot')
@@ -55,7 +55,7 @@ async def on_message(message):
     if message.content == 't.support':
         await message.channel.send('このBotのサポートサーバーです。バグ報告・要望等あればこちらにお願いします。お気軽にどうぞ。\nhttps://discord.gg/DbtZAcX')
         return
-    if message.content.startswith('t.expand')
+    if message.content.startswith('t.expand'):
         if message.content[9:11] == 'on'
             if message.guild.id in expand_off:
                 expand_off.remove(message.guild.id)
