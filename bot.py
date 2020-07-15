@@ -30,7 +30,7 @@ async def on_message(message):
     if message.author.bot:
         return
     if message.content == 't.help':
-        await message.channel.send('このBotのヘルプです。\n\n「t.con (オプション:反応する対象、言語)」\n(使用例：t.con en server)\n自分が接続しているVCにBotを接続させます。\n反応する対象：\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応\n\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n「t.dc」\n**自分が接続しているVCから**このBotを切断します。\n\n「t.release note」\nこのBotの最新のアップデート内容を確認できます。\n\n「t.invite」\nこのBotの招待リンクを送ります。ご自由にお使い下さい。\n\n「t.support」\nこのBotのサポートサーバーの招待リンクを送ります。バグ報告・要望等あればこちらまでお願いします。')
+        await message.channel.send('このBotのヘルプです。\n\n**「t.con (オプション:反応する対象、言語)」**\n(使用例：t.con en server)\n自分が接続しているVCにBotを接続させます。\n反応する対象：\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応\n\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n**「t.dc」**\n自分が接続しているVCからこのBotを切断します。\n\n**「t.release note」**\nこのBotの最新のアップデート内容を確認できます。\n\n**「t.invite」**\nこのBotの招待リンクを送ります。ご自由にお使い下さい。\n\n**「t.support」**\nこのBotのサポートサーバーの招待リンクを送ります。バグ報告・要望等あればこちらまでお願いします。')
     if message.content == 't.release note':
         await message.channel.send('◆2020/07/14(22:07)リリース◆\n\n機能追加\n・サポートサーバーへのリンクを追加\n\nバグフィックス\n・なし')
     if message.content == 't.invite':
