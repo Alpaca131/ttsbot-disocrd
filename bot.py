@@ -130,7 +130,7 @@ async def on_message(message):
             detect = '(チャンネルに反応)'
             voice_active_ch.append(message.channel.id)
 
-        await message.channel.send(message.author.voice.channel.name + 'に接続しました。 ' + detect + limit_msg)
+        await message.channel.send(message.author.voice.channel.name + 'に接続しました。 ' + detect + ' (' +limit_msg + ')')
         if message.content[6:8] == 'jp':
             print(message.content[6:8])
             print('JP')
