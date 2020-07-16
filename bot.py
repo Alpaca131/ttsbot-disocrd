@@ -10,6 +10,7 @@ import json
 from urllib.request import *
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
+import demoji
 
 client = discord.Client()
 TOKEN = os.environ['DISCORD_BOT_TOKEN']
@@ -27,6 +28,7 @@ word_limit = {}
 @client.event
 async def on_ready():
     global expand_off
+    demoji.download_codes()
     print('ready')
     await client.change_presence(activity=discord.Game(name="「t.help」でヘルプ", type=1))
     f = drive.CreateFile({'id': '1zX-mbDeN_Mlx-p_62WSE5zAgsqu_jFX5'})
@@ -119,16 +121,22 @@ async def on_message(message):
             print('channel')
             detect = '(チャンネルに反応)'
             voice_active_ch.append(message.channel.id)
+            if message.guild.id in voice_active_guild:
+                voice_active_guild.remove(message.guild.id)
         # サーバー
         elif message.content.find('server')!=-1:
             print('guild')
             detect = '(サーバー全体に反応)'
             voice_active_guild.append(message.guild.id)
+            if message.channel.id in voice_active_ch:
+                voice_active_ch.remove(message.channel.id)
         # その他
         else:
             print('else-ch')
             detect = '(チャンネルに反応)'
             voice_active_ch.append(message.channel.id)
+            if message.guild.id in voice_active_guild:
+                voice_active_guild.remove(message.guild.id)
 
         await message.channel.send(message.author.voice.channel.name + 'に接続しました。 ' + detect + ' (' +limit_msg + ')')
         if message.content[6:8] == 'jp':
@@ -182,6 +190,8 @@ async def on_message(message):
         return
 
     if message.guild.id in voice_active_guild or message.channel.id in voice_active_ch:
+        message.content = demoji.replace(message.content, '')
+        message.content = re.sub(r'<:\w*:\d*>', message.content)
         if message.guild.id in word_limit:
         	limit = word_limit.get(message.guild.id)
         	msg_content = message.content[:int(limit)]

@@ -7,3 +7,4 @@ requests==2.23.0
 dispander==0.4.0
 httplib2==0.18.1
 PyDrive
+demoji
