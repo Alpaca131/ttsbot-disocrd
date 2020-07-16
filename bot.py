@@ -21,6 +21,7 @@ voice_active_guild = []
 lang = {}
 spk_rate_dic = {}
 voice_active_ch = []
+word_limit = {}
 
 
 @client.event
@@ -49,10 +50,10 @@ async def on_message(message):
     if message.guild.id not in expand_off:
         await dispand(message)
     if message.content == 't.help':
-        await message.channel.send('このBotのヘルプです。\n\n**「t.con (オプション：反応する対象、言語)」**\n(使用例：t.con en server)\n自分が接続しているVCにBotを接続させます。\n反応する対象：\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応\n\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n**「t.dc」**\n自分が接続しているVCからこのBotを切断します。\n\n**「t.expand (オプション：on/off)」**\nリンク展開機能のオンオフを切り替えます。\n\n**「t.release note」**\nこのBotの最新のアップデート内容を確認できます。\n\n**「t.invite」**\nこのBotの招待リンクを送ります。ご自由にお使い下さい。\n\n**「t.support」**\nこのBotのサポートサーバーの招待リンクを送ります。バグ報告・要望等あればこちらまでお願いします。')
+        await message.channel.send('このBotのヘルプです。\n\n**「t.con (オプション：反応する対象、言語、文字数上限)」**\n(使用例：t.con en server limit=50)\n自分が接続しているVCにBotを接続させます。\n反応する対象：\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応\n\n、文字数制限\n・反応する文字数を制限できます。(limit=文字数)\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n**「t.dc」**\n自分が接続しているVCからこのBotを切断します。\n\n**「t.expand (オプション：on/off)」**\nリンク展開機能のオンオフを切り替えます。\n\n**「t.release note」**\nこのBotの最新のアップデート内容を確認できます。\n\n**「t.invite」**\nこのBotの招待リンクを送ります。ご自由にお使い下さい。\n\n**「t.support」**\nこのBotのサポートサーバーの招待リンクを送ります。バグ報告・要望等あればこちらまでお願いします。')
         return
     if message.content == 't.release note':
-        await message.channel.send('◆2020/07/15(11:40)リリース◆\n\n機能追加\n・リンク展開を実装。コマンドでオン/オフの切り替えが可能。\n\nバグフィックス\n・ヘルプを修正')
+        await message.channel.send('◆2020/07/15(11:40)リリース◆\n\n機能追加\n・文字数制限を実装。\n\nバグフィックス\n・なし')
         return
     if message.content == 't.invite':
         await message.channel.send('このBotの招待リンクです。導入してもらえると喜びます。\n開発者:Alpaca#8032\nhttps://discord.com/api/oauth2/authorize?client_id=727508841368911943&permissions=3153472&scope=bot')
@@ -102,6 +103,16 @@ async def on_message(message):
         if message.author.voice is None:
             await message.channel.send('VCに接続してからもう一度お試し下さい。')
             return
+        if message.content.find('limit=')!= -1:
+            m = re.search('limit=\d+', message.content)
+            if m is None:
+                await message.channel.send('「limit=」オプションが間違っています。「t.help」でヘルプを確認できます。')
+                return
+            word_limit[message.guild.id] = m.group()
+            limit_msg = '文字数制限：' + m.group()
+        else:
+            limit_msg =  '文字数制限：なし'
+            
         # チャンネル
         if message.content.find('channel')!=-1:
             print('channel')
@@ -118,7 +129,7 @@ async def on_message(message):
             detect = '(チャンネルに反応)'
             voice_active_ch.append(message.channel.id)
 
-        await message.channel.send(message.author.voice.channel.name + 'に接続しました。 ' + detect)
+        await message.channel.send(message.author.voice.channel.name + 'に接続しました。 ' + detect + limit_msg)
         if message.content[6:8] == 'jp':
             print(message.content[6:8])
             print('JP')
@@ -165,23 +176,23 @@ async def on_message(message):
         return
 
     if message.guild.id in voice_active_guild or message.channel.id in voice_active_ch:
-        if message.content.find('http') != -1:
-            pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
-            text_to_serch = message.content
-            url_list = re.findall(pattern, text_to_serch)
-            text_mod = message.content
-            for item in url_list:
-                text_mod = text_mod.remove(item)
-            speech_text = text_mod
+        if message.guild.id in word_limit:
+        	limit = word_limit.get(message.guild.id)
+        	msg_content = message.content[:int(limit)]
         else:
-            speech_text = message.content
+        	msg_content = message.content
+        if msg_content.find('http') != -1:
+            pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
+            url_list = re.findall(pattern, msg_content)
+            for item in url_list:
+                msg_content = msg_content.remove(item)
         language = lang[str(message.guild.id)]
         str_url = "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key="
         str_headers = {'Content-Type': 'application/json; charset=utf-8'}
         url = str_url + str_api_key
         str_json_data = {
             'input': {
-                'text': speech_text
+                'text': msg_content
             },
             'voice': {
                 'languageCode': language,
