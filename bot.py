@@ -108,8 +108,9 @@ async def on_message(message):
             if m is None:
                 await message.channel.send('「limit=」オプションが間違っています。「t.help」でヘルプを確認できます。')
                 return
-            word_limit[message.guild.id] = m.group()
-            limit_msg = '文字数制限：' + m.group()
+            limit_num = m.group()[6:]
+            word_limit[message.guild.id] = limit_num
+            limit_msg = '文字数制限：' + limit_num
         else:
             limit_msg =  '文字数制限：なし'
             
@@ -163,6 +164,7 @@ async def on_message(message):
     # 切断
     if message.content == 't.dc':
         voich = message.guild.voice_client
+        # アクティブ状態リセット
         if message.guild.id in voice_active_guild:
             voice_active_guild.remove(message.guild.id)
             del lang[str(message.guild.id)]
@@ -173,6 +175,10 @@ async def on_message(message):
             await voich.disconnect()
         else:
             await message.channel.send('現在Botはどのチャンネルにも参加していません。')
+            return
+        # 文字数制限リセット
+        if message.guild.id in word_limit:
+        	del word_limit[message.guild.id]
         return
 
     if message.guild.id in voice_active_guild or message.channel.id in voice_active_ch:
