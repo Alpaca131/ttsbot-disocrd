@@ -191,7 +191,7 @@ async def on_message(message):
 
     if message.guild.id in voice_active_guild or message.channel.id in voice_active_ch:
         message.content = demoji.replace(message.content, '')
-        message.content = re.sub(r'<:\w*:\d*>', message.content)
+        message.content = re.sub(r'<:\w*:\d*>', message.content, '')
         if message.guild.id in word_limit:
         	limit = word_limit.get(message.guild.id)
         	msg_content = message.content[:int(limit)]
