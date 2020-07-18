@@ -203,7 +203,7 @@ async def on_message(message):
             for item in url_list:
                 msg_content = msg_content.remove(item)
         language = lang[str(message.guild.id)]
-        str_url = "https://texttospeech.googleapis.com/v1beta1/text:synthesize?key="
+        str_url = "https://texttospeech.googleapis.com/v1/text:synthesize?key="
         str_headers = {'Content-Type': 'application/json; charset=utf-8'}
         url = str_url + str_api_key
         str_json_data = {
