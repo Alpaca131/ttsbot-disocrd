@@ -14,6 +14,7 @@ import demoji
 from googletrans import Translator
 
 client = discord.Client()
+translator = Translator()
 TOKEN = os.environ['DISCORD_BOT_TOKEN']
 str_api_key = os.environ['GCP_API']
 gauth = GoogleAuth()
@@ -56,7 +57,7 @@ async def on_message(message):
         await message.channel.send('このBotのヘルプです。\n\n**「t.con (オプション：反応する対象、言語、文字数制限)」**\n(使用例：t.con lang=en server limit=50)\n自分が接続しているVCにBotを接続させます。\n\n反応する対象：\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応\n\n文字数制限(limit=文字数)：\n・反応する文字数を制限できます。\n\n言語(lang=)：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n・auto･･･自動(※遅延が増加する場合があります。)\n\n**「t.dc」**\n自分が接続しているVCからこのBotを切断します。\n\n**「t.expand (オプション：on/off)」**\nリンク展開機能のオンオフを切り替えます。\n\n**「t.release note」**\nこのBotの最新のアップデート内容を確認できます。\n\n**「t.invite」**\nこのBotの招待リンクを送ります。ご自由にお使い下さい。\n\n**「t.support」**\nこのBotのサポートサーバーの招待リンクを送ります。バグ報告・要望等あればこちらまでお願いします。')
         return
     if message.content == 't.release note':
-        await message.channel.send('◆2020/07/19(02:02)リリース◆\n\n機能追加\n・自動で言語を検知する機能を追加。\n・接続コマンドのオプションを変更\n・ヘルプを更新\n\nバグフィックス\n・なし')
+        await message.channel.send('◆2020/07/19(02:05)リリース◆\n\n機能追加\n・自動で言語を検知する機能を追加。\n・接続コマンドのオプションを変更\n・ヘルプを更新\n\nバグフィックス\n・なし')
         return
     if message.content == 't.invite':
         await message.channel.send('このBotの招待リンクです。導入してもらえると喜びます。\n開発者:Alpaca#8032\nhttps://discord.com/api/oauth2/authorize?client_id=727508841368911943&permissions=3153472&scope=bot')
