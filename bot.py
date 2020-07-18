@@ -11,6 +11,7 @@ from urllib.request import *
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import demoji
+from googletrans import Translator
 
 client = discord.Client()
 TOKEN = os.environ['DISCORD_BOT_TOKEN']
@@ -52,10 +53,10 @@ async def on_message(message):
     if message.guild.id not in expand_off:
         await dispand(message)
     if message.content == 't.help':
-        await message.channel.send('このBotのヘルプです。\n\n**「t.con (オプション：反応する対象、言語、文字数制限)」**\n(使用例：t.con en server limit=50)\n自分が接続しているVCにBotを接続させます。\n\n反応する対象：\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応\n\n文字数制限：\n・反応する文字数を制限できます。(limit=文字数)\n\n言語：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n\n**「t.dc」**\n自分が接続しているVCからこのBotを切断します。\n\n**「t.expand (オプション：on/off)」**\nリンク展開機能のオンオフを切り替えます。\n\n**「t.release note」**\nこのBotの最新のアップデート内容を確認できます。\n\n**「t.invite」**\nこのBotの招待リンクを送ります。ご自由にお使い下さい。\n\n**「t.support」**\nこのBotのサポートサーバーの招待リンクを送ります。バグ報告・要望等あればこちらまでお願いします。')
+        await message.channel.send('このBotのヘルプです。\n\n**「t.con (オプション：反応する対象、言語、文字数制限)」**\n(使用例：t.con lang=en server limit=50)\n自分が接続しているVCにBotを接続させます。\n\n反応する対象：\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応\n\n文字数制限(limit=文字数)：\n・反応する文字数を制限できます。\n\n言語(lang=)：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n・auto･･･自動(※遅延が増加する場合があります。)\n\n**「t.dc」**\n自分が接続しているVCからこのBotを切断します。\n\n**「t.expand (オプション：on/off)」**\nリンク展開機能のオンオフを切り替えます。\n\n**「t.release note」**\nこのBotの最新のアップデート内容を確認できます。\n\n**「t.invite」**\nこのBotの招待リンクを送ります。ご自由にお使い下さい。\n\n**「t.support」**\nこのBotのサポートサーバーの招待リンクを送ります。バグ報告・要望等あればこちらまでお願いします。')
         return
     if message.content == 't.release note':
-        await message.channel.send('◆2020/07/16(0:55)リリース◆\n\n機能追加\n・なし\n\nバグフィックス\n・デフォルト絵文字、カスタム絵文字のIDが読み上げられていた不具合を修正。')
+        await message.channel.send('◆2020/07/19(01:44)リリース◆\n\n機能追加\n・自動で言語を検知する機能を追加。\n・接続コマンドのオプションを変更\n・ヘルプを更新\n\nバグフィックス\n・なし')
         return
     if message.content == 't.invite':
         await message.channel.send('このBotの招待リンクです。導入してもらえると喜びます。\n開発者:Alpaca#8032\nhttps://discord.com/api/oauth2/authorize?client_id=727508841368911943&permissions=3153472&scope=bot')
@@ -105,6 +106,7 @@ async def on_message(message):
         if message.author.voice is None:
             await message.channel.send('VCに接続してからもう一度お試し下さい。')
             return
+        # 文字数制限
         if message.content.find('limit=')!= -1:
             m = re.search('limit=\d+', message.content)
             if m is None:
@@ -115,56 +117,61 @@ async def on_message(message):
             limit_msg = '文字数制限：' + limit_num
         else:
             limit_msg =  '文字数制限：なし'
-            
         # チャンネル
-        if message.content.find('channel')!=-1:
+        if message.content.find('channel'):
             print('channel')
-            detect = '(チャンネルに反応)'
+            detect = ' (チャンネルに反応)'
             voice_active_ch.append(message.channel.id)
             if message.guild.id in voice_active_guild:
                 voice_active_guild.remove(message.guild.id)
         # サーバー
-        elif message.content.find('server')!=-1:
+        elif message.content.find('server'):
             print('guild')
-            detect = '(サーバー全体に反応)'
+            detect = ' (サーバー全体に反応)'
             voice_active_guild.append(message.guild.id)
             if message.channel.id in voice_active_ch:
                 voice_active_ch.remove(message.channel.id)
         # その他
         else:
             print('else-ch')
-            detect = '(チャンネルに反応)'
+            detect = ' (チャンネルに反応)'
             voice_active_ch.append(message.channel.id)
             if message.guild.id in voice_active_guild:
                 voice_active_guild.remove(message.guild.id)
 
-        await message.channel.send(message.author.voice.channel.name + 'に接続しました。 ' + detect + ' (' +limit_msg + ')')
-        if message.content[6:8] == 'jp':
-            print(message.content[6:8])
+        if message.content.find('lang=jp'):
             print('JP')
+            lang_msg = '日本語'
             language = 'ja-JP'
             lang[str(message.guild.id)] = language
-        elif message.content[6:8] =='kr':
-            print(message.content[6:8])
+        elif message.content.find('lang=kr'):
             print('KR')
+            lang_msg = '韓国語'
             language = 'ko-KR'
             lang[str(message.guild.id)] = language
-        elif message.content[6:9] == 'ch':
-            print(message.content[6:8])
+        elif message.content.find('lang=ch'):
             print('CH')
+            lang_msg = '中国語'
             language = 'cmn-CN'
             lang[str(message.guild.id)] = language
-        elif message.content[6:8] == 'en':
-            print(message.content[6:8])
+        elif message.content.find('lang=en'):
             print('EN')
+            lang_msg = '英語'
             language = 'en-US'
+            lang[str(message.guild.id)] = language
+        elif message.content.find('lang=auto'):
+            print('auto')
+            lang_msg = '自動検知'
+            language = 'auto'
             lang[str(message.guild.id)] = language
         else:
             print('else-JP')
-            print(message.content[6:8])
+            lang_msg = '日本語'
             language = 'ja-JP'
             lang[str(message.guild.id)] = language
 
+        await message.channel.send(
+            message.author.voice.channel.name + 'に接続しました。 ' + '言語：' + lang_msg + detect + ' (' + limit_msg + ')')
         await discord.VoiceChannel.connect(message.author.voice.channel)
         return
 
@@ -197,12 +204,25 @@ async def on_message(message):
         	msg_content = message.content[:int(limit)]
         else:
         	msg_content = message.content
+        language = lang[str(message.guild.id)]
+        if language == 'auto':
+            detect_lang = translator.detect(message.content).lang
+            if detect_lang == 'ja':
+                language = 'ja-JP'
+            elif detect_lang == 'en':
+                language = 'en-US'
+            elif detect_lang == 'ko':
+                language = 'ko-KR'
+            elif detect_lang.find('CN'):
+                language = 'cmn-CN'
+            else:
+                await message.channel.send('サポートされてない言語です。\nError:Unsopported language. (lang=' + detect_lang + ')')
+                return
         if msg_content.find('http') != -1:
             pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
             url_list = re.findall(pattern, msg_content)
             for item in url_list:
                 msg_content = msg_content.remove(item)
-        language = lang[str(message.guild.id)]
         str_url = "https://texttospeech.googleapis.com/v1/text:synthesize?key="
         str_headers = {'Content-Type': 'application/json; charset=utf-8'}
         url = str_url + str_api_key
