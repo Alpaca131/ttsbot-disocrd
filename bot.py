@@ -139,27 +139,27 @@ async def on_message(message):
             if message.guild.id in voice_active_guild:
                 voice_active_guild.remove(message.guild.id)
 
-        if message.content.find('lang=jp'):
+        if message.content.find('lang=jp')==1:
             print('JP')
             lang_msg = '日本語'
             language = 'ja-JP'
             lang[str(message.guild.id)] = language
-        elif message.content.find('lang=kr'):
+        elif message.content.find('lang=kr')==1:
             print('KR')
             lang_msg = '韓国語'
             language = 'ko-KR'
             lang[str(message.guild.id)] = language
-        elif message.content.find('lang=ch'):
+        elif message.content.find('lang=ch')==1:
             print('CH')
             lang_msg = '中国語'
             language = 'cmn-CN'
             lang[str(message.guild.id)] = language
-        elif message.content.find('lang=en'):
+        elif message.content.find('lang=en')==1:
             print('EN')
             lang_msg = '英語'
             language = 'en-US'
             lang[str(message.guild.id)] = language
-        elif message.content.find('lang=auto'):
+        elif message.content.find('lang=auto')==1:
             print('auto')
             lang_msg = '自動検知'
             language = 'auto'
