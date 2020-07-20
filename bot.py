@@ -76,7 +76,7 @@ async def on_message(message):
     if message.content == 't.help en':
         await message.channel.send('Wirting now...\n・ω・')
     if message.content == 't.release note':
-        embed = discord.Embed(title="◆2020/07/20(11:22)リリース◆", color=discord.Colour.red())
+        embed = discord.Embed(title="◆2020/07/20(11:23)リリース◆", color=discord.Colour.red())
         embed.add_field(name='機能追加',
                         value="・ヘルプ、リリースノートをembed形式に変更", inline=False)
         embed.add_field(name='バグフィックス',
