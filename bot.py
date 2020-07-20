@@ -59,8 +59,6 @@ async def on_message(message):
                                                                               '\n__**言語(lang=)**__\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n・auto･･･自動検知(※遅延が増加する場合があります。)'
                                                                               '\n__**反応する対象：**__\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応'
                                                                               '\n__**文字数制限(limit=文字数)：**__\n・反応する文字数を制限できます。\n')
-        embed.set_author(name="TTS",
-                         icon_url="https://cdn.discordapp.com/avatars/727508841368911943/5c6cf75e3f3daea9c00c2aaf1dc4698f.png?size=128")
         embed.add_field(name='t.dc',
                         value="BotをVCから切断します。", inline=False)
         embed.add_field(name='t.expand',
