@@ -154,14 +154,14 @@ async def on_message(message):
         # サーバー
         elif message.content.find('server')!= -1:
             print('guild')
-            detect = ' (サーバー全体に反応)'
+            detect_msg = ' サーバー全体に反応'
             voice_active_guild.append(message.guild.id)
             if message.channel.id in voice_active_ch:
                 voice_active_ch.remove(message.channel.id)
         # その他
         else:
             print('else-ch')
-            detect = ' (チャンネルに反応)'
+            detect_msg = ' チャンネルに反応'
             voice_active_ch.append(message.channel.id)
             if message.guild.id in voice_active_guild:
                 voice_active_guild.remove(message.guild.id)
@@ -197,8 +197,8 @@ async def on_message(message):
             language = 'ja-JP'
             lang[str(message.guild.id)] = language
 
-        await message.channel.send(
-            message.author.voice.channel.name + 'に接続しました。 ' + '言語：' + lang_msg + detect + ' (' + limit_msg + ')')
+        embed = discord.Embed(title= message.author.voice.channel.name + "に接続しました。", description='言語：'+ lang_msg +'\n' + limit_msg + '\n' + detect_msg, color=0x00c707)
+        await message.channel.send(embed=embed)
         await discord.VoiceChannel.connect(message.author.voice.channel)
         return
 
