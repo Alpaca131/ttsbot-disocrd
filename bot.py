@@ -54,12 +54,34 @@ async def on_message(message):
     if message.guild.id not in expand_off:
         await dispand(message)
     if message.content == 't.help':
-        await message.channel.send('このBotのヘルプです。\n\n**「t.con (オプション：反応する対象、言語、文字数制限)」**\n(使用例：t.con lang=en server limit=50)\n自分が接続しているVCにBotを接続させます。\n\n反応する対象：\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応\n\n文字数制限(limit=文字数)：\n・反応する文字数を制限できます。\n\n言語(lang=)：\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n・auto･･･自動(※遅延が増加する場合があります。)\n\n**「t.dc」**\n自分が接続しているVCからこのBotを切断します。\n\n**「t.expand (オプション：on/off)」**\nリンク展開機能のオンオフを切り替えます。\n\n**「t.release note」**\nこのBotの最新のアップデート内容を確認できます。\n\n**「t.invite」**\nこのBotの招待リンクを送ります。ご自由にお使い下さい。\n\n**「t.support」**\nこのBotのサポートサーバーの招待リンクを送ります。バグ報告・要望等あればこちらまでお願いします。')
+        embed = discord.Embed(title="ヘルプ・コマンド一覧", description="以下がこのBotで使えるコマンド一覧です。", color=discord.Colour.blue())
+        embed.add_field(name='t.con (例：t.con lang=en server limit=50)', value='(オプション：反応する対象、言語、文字数制限)'
+                                                                              '\n__**言語(lang=)**__\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n・auto･･･自動検知(※遅延が増加する場合があります。)'
+                                                                              '\n__**反応する対象：**__\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応'
+                                                                              '\n__**文字数制限(limit=文字数)：**__\n・反応する文字数を制限できます。\n')
+        embed.set_author(name="TTS",
+                         icon_url="https://cdn.discordapp.com/avatars/727508841368911943/5c6cf75e3f3daea9c00c2aaf1dc4698f.png?size=128")
+        embed.add_field(name='t.dc',
+                        value="BotをVCから切断します。", inline=False)
+        embed.add_field(name='t.expand',
+                        value="(オプション：on/off)\nリンク展開機能のオンオフを切り替えます。", inline=False)
+        embed.add_field(name='t.release note',
+                        value="このBotの最新のアップデート内容を確認できます。", inline=False)
+        embed.add_field(name='t.invite',
+                        value="このBotの招待リンクを送ります。ご自由にお使い下さい。", inline=False)
+        embed.add_field(name='t.support',
+                        value="このBotのサポートサーバーの招待リンクを送ります。\nバグ報告・ご要望等あればこちらまでお願いします。", inline=False)
+        await message.channel.send(embed=embed)
         return
     if message.content == 't.help en':
         await message.channel.send('Wirting now...\n・ω・')
     if message.content == 't.release note':
-        await message.channel.send('◆2020/07/19(09:51)リリース◆\n\n機能追加\n・なし\n\nバグフィックス\n・サーバー、チャンネルの選択が出来なくなっていた不具合を修正')
+        embed = discord.Embed(title="◆2020/07/20(11:22)リリース◆", color=discord.Colour.red())
+        embed.add_field(name='機能追加',
+                        value="・ヘルプ、リリースノートをembed形式に変更", inline=False)
+        embed.add_field(name='バグフィックス',
+                        value="・なし", inline=False)
+        await message.channel.send(embed=embed)
         return
     if message.content == 't.release note en':
         await message.channel.send('◆2020/07/19(09:51)Released◆\n\nAdded function\n・None\n\nBug fix\n・Fixed channel or server select')
