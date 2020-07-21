@@ -61,7 +61,7 @@ async def on_message(message):
                                                                               '\n__**反応する対象：**__\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応'
                                                                               '\n__**名前読み上げ(name=on\off)：**__\nメッセージの前に送信者の名前を読み上げます。')
         embed.add_field(name='t.<lang>(翻訳して読み上げ)',
-                        value="指定の言語に翻訳してから読み上げます。(※遅延が増加する場合があります。)", inline=False)
+                        value="指定の言語に翻訳してから読み上げます。\n(※遅延が増加する場合があります。)", inline=False)
         embed.add_field(name='t.dc',
                         value="BotをVCから切断します。", inline=False)
         embed.add_field(name='t.expand',
