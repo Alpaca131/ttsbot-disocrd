@@ -264,7 +264,7 @@ async def on_message(message):
                 msg_content = msg_content.remove(item)
         # 翻訳
         if msg_content.startswith('t.'):
-            msg_content = translator.translate(msg_content[5:], dest=message.content[2:4])
+            msg_content = translator.translate(msg_content[5:], dest=message.content[2:4]).text
         # 名前読み上げ
         if name_speech.get(message.guild.id) == 'on':
             if language == 'ja-JP':
