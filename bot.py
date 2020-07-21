@@ -21,7 +21,7 @@ gauth = GoogleAuth()
 gauth.LocalWebserverAuth()
 drive = GoogleDrive(gauth)
 lang = {}
-spk_rate_dic = {}
+speech_speed = {}
 voice_active = {}
 word_limit = {}
 name_speech = {}
@@ -58,6 +58,7 @@ async def on_message(message):
         embed.add_field(name='t.con (例：t.con lang=en server limit=50)', value='(オプション：言語、文字数制限、反応する対象、名前読み上げ)'
                                                                               '\n__**言語(lang=)**__\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n・auto･･･自動検知(※遅延が増加する場合があります。)'
                                                                               '\n__**文字数制限(limit=文字数)：**__\n・反応する文字数を制限できます。'
+                                                                              '\n__**読み上げ速度(speed=数字)：**__\n・読み上げ速度を変更できます。デフォルトは1です。\n0.25～4の間で指定できます。'
                                                                               '\n__**反応する対象：**__\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応'
                                                                               '\n__**名前読み上げ(name=on/off)：**__\nメッセージの前に送信者の名前を読み上げます。')
         embed.add_field(name='t.<lang>(翻訳して読み上げ)',
@@ -162,6 +163,18 @@ async def on_message(message):
             limit_msg = '文字数制限：' + limit_num
         else:
             limit_msg =  '文字数制限：なし'
+        # 読み上げ速度
+        if message.content.find('speed=') != -1:
+            m = re.search('speed=\d+(?:.\d+)?', message.content)
+            if m is None:
+                await message.channel.send('「speed=」オプションが間違っています。「t.help」でヘルプを確認できます。')
+                return
+            speed_num = m.group()[6:]
+            speech_speed[message.guild.id] = limit_num
+            speed_msg = '読み上げ速度：' + speed_num
+        else:
+            speech_speed[message.guild.id] = '1'
+            speed_msg = '読み上げ速度：' + '1'
         # チャンネルに反応
         if message.content.find('channel')!= -1:
             print('channel')
@@ -209,7 +222,7 @@ async def on_message(message):
             language = 'ja-JP'
             lang[message.guild.id] = language
 
-        embed = discord.Embed(title= message.author.voice.channel.name + "に接続しました。", description='言語：'+ lang_msg +'\n' + limit_msg + '\n' + detect_msg + '\n' + name_msg, color=0x00c707)
+        embed = discord.Embed(title= message.author.voice.channel.name + "に接続しました。", description='言語：'+ lang_msg +'\n' + limit_msg + '\n' + detect_msg + '\n' + name_msg + '\n' + speed_msg, color=0x00c707)
         await message.channel.send(embed=embed)
         await discord.VoiceChannel.connect(message.author.voice.channel)
         return
@@ -237,11 +250,19 @@ async def on_message(message):
         message.content = re.sub(r'<:\w*:\d*>', '', message.content)
         # 正規表現でメンションを除去
         message.content = re.sub(r'<@\d+>', '', message.content)
+        # URL除去
+        if msg_content.find('http') != -1:
+            pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
+            url_list = re.findall(pattern, message.content)
+            for item in url_list:
+                message.content = message.content.remove(item)
+        # 文字数制限
         if message.guild.id in word_limit:
         	limit = word_limit.get(message.guild.id)
         	msg_content = message.content[:int(limit)]
         else:
         	msg_content = message.content
+        # 言語判定
         language = lang.get(message.guild.id)
         if language == 'auto':
             detect_lang = translator.detect(message.content).lang
@@ -256,27 +277,23 @@ async def on_message(message):
             else:
                 await message.channel.send('サポートされてない言語です。\nError:Unsopported language. (lang=' + detect_lang + ')')
                 return
-        # URL除去
-        if msg_content.find('http') != -1:
-            pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
-            url_list = re.findall(pattern, msg_content)
-            for item in url_list:
-                msg_content = msg_content.remove(item)
+        # 読み上げ速度
+        speed_num = int(speech_speed.get(message.guild.id))
         # 翻訳
-        if msg_content.startswith('t.'):
-            msg_content = translator.translate(msg_content[5:], dest=message.content[2:4]).text
+        if message.content.startswith('t.'):
+            message.content = translator.translate(message.content[5:], dest=message.content[2:4]).text
         # 名前読み上げ
         if name_speech.get(message.guild.id) == 'on':
             if language == 'ja-JP':
-                msg_content = message.author.name + '：' + msg_content
+                message.content = message.author.name + '：' + message.content
             else:
-                msg_content = message.author.name + ':' + msg_content
+                message.content = message.author.name + ':' + message.content
         str_url = "https://texttospeech.googleapis.com/v1/text:synthesize?key="
         str_headers = {'Content-Type': 'application/json; charset=utf-8'}
         url = str_url + str_api_key
         str_json_data = {
             'input': {
-                'text': msg_content
+                'text': message.content
             },
             'voice': {
                 'languageCode': language,
@@ -284,7 +301,8 @@ async def on_message(message):
                 'ssmlGender': 'MALE'
             },
             'audioConfig': {
-                'audioEncoding': 'MP3'
+                'audioEncoding': 'MP3',
+                "speakingRate": speed_num
             }
         }
         jd = json.dumps(str_json_data)
