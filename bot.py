@@ -178,7 +178,7 @@ async def on_message(message):
         # チャンネルに反応
         if message.content.find('channel')!= -1:
             print('channel')
-            detect = ' (チャンネルに反応)'
+            detect_msg = ' チャンネルに反応'
             voice_active[message.guild.id] = message.channel.id
         # サーバーに反応
         elif message.content.find('server')!= -1:
