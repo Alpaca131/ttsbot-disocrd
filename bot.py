@@ -251,7 +251,7 @@ async def on_message(message):
         # 正規表現でメンションを除去
         message.content = re.sub(r'<@\d+>', '', message.content)
         # URL除去
-        if msg_content.find('http') != -1:
+        if message.content.find('http') != -1:
             pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
             url_list = re.findall(pattern, message.content)
             for item in url_list:
