@@ -79,7 +79,7 @@ async def on_message(message):
     if message.content == 't.release note':
         embed = discord.Embed(title="◆2020/07/21(12:43)リリース◆", color=discord.Colour.red())
         embed.add_field(name='機能追加',
-                        value="・翻訳機能を追加しました。ヘルプで使用方法を確認できます。\n送信者の名前を読み上げる機能を追加しました。ヘルプで使用方法を確認できます。", inline=False)
+                        value="・翻訳機能を追加しました。ヘルプで使用方法を確認できます。\n・送信者の名前を読み上げる機能を追加しました。ヘルプで使用方法を確認できます。", inline=False)
         embed.add_field(name='バグフィックス',
                         value="・メンションのIDが読み上げられる問題を修正しました。", inline=False)
         await message.channel.send(embed=embed)
