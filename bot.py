@@ -79,7 +79,7 @@ async def on_message(message):
     if message.content == 't.release note':
         embed = discord.Embed(title="◆2020/07/21(12:43)リリース◆", color=discord.Colour.red())
         embed.add_field(name='機能追加',
-                        value="・翻訳機能を追加しました。ヘルプで使用方法を確認できます。", inline=False)
+                        value="・翻訳機能を追加しました。ヘルプで使用方法を確認できます。\n送信者の名前を読み上げる機能を追加しました。ヘルプで使用方法を確認できます。", inline=False)
         embed.add_field(name='バグフィックス',
                         value="・メンションのIDが読み上げられる問題を修正しました。", inline=False)
         await message.channel.send(embed=embed)
@@ -268,9 +268,9 @@ async def on_message(message):
         # 名前読み上げ
         if name_speech.get(message.guild.id) == 'on':
             if language == 'ja-JP':
-                msg_content = '送信者：' + message.author.name + '　' + msg_content
+                msg_content = message.author.name + '：' + msg_content
             else:
-                msg_content = 'from:' + message.author.name + ' ' + msg_content
+                msg_content = message.author.name + ':' + msg_content
         str_url = "https://texttospeech.googleapis.com/v1/text:synthesize?key="
         str_headers = {'Content-Type': 'application/json; charset=utf-8'}
         url = str_url + str_api_key
