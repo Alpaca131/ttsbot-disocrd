@@ -235,6 +235,7 @@ async def on_message(message):
         if message.guild.id in voice_active:
             del lang[message.guild.id]
             del voice_active[message.guild.id]
+            del speech_speed[message.guild.id]
             if message.guild.id in word_limit:
                 del word_limit[message.guild.id]
             await voich.disconnect()
