@@ -278,7 +278,7 @@ async def on_message(message):
                 await message.channel.send('サポートされてない言語です。\nError:Unsopported language. (lang=' + detect_lang + ')')
                 return
         # 読み上げ速度
-        speed_num = int(speech_speed.get(message.guild.id))
+        speed_num = float(speech_speed.get(message.guild.id))
         # 翻訳
         if message.content.startswith('t.'):
             message.content = translator.translate(message.content[5:], dest=message.content[2:4]).text
