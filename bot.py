@@ -248,6 +248,8 @@ async def on_message(message):
             url_list = re.findall(pattern, msg_content)
             for item in url_list:
                 msg_content = msg_content.remove(item)
+        if msg_content.startswith('t.') != -1:
+            msg_content = translator.translate(msg_content, dest=message.content[2:4])
         str_url = "https://texttospeech.googleapis.com/v1/text:synthesize?key="
         str_headers = {'Content-Type': 'application/json; charset=utf-8'}
         url = str_url + str_api_key
