@@ -60,7 +60,7 @@ async def on_message(message):
                                                                               '\n__**文字数制限(limit=文字数)：**__\n・反応する文字数を制限できます。'
                                                                               '\n__**反応する対象：**__\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応'
                                                                               '\n__**名前読み上げ(name=on\off)：**__\nメッセージの前に送信者の名前を読み上げます。')
-        embed.add_field(name='翻訳読み上げ(t.en りんご→apple)',
+        embed.add_field(name='t.<lang>(翻訳して読み上げ)',
                         value="指定の言語に翻訳してから読み上げます。(※遅延が増加する場合があります。)", inline=False)
         embed.add_field(name='t.dc',
                         value="BotをVCから切断します。", inline=False)
@@ -77,7 +77,7 @@ async def on_message(message):
     if message.content == 't.help en':
         await message.channel.send('Wirting now...\n・ω・')
     if message.content == 't.release note':
-        embed = discord.Embed(title="◆2020/07/21(12:38)リリース◆", color=discord.Colour.red())
+        embed = discord.Embed(title="◆2020/07/21(12:43)リリース◆", color=discord.Colour.red())
         embed.add_field(name='機能追加',
                         value="・翻訳機能を追加しました。ヘルプで使用方法を確認できます。", inline=False)
         embed.add_field(name='バグフィックス',
@@ -85,7 +85,7 @@ async def on_message(message):
         await message.channel.send(embed=embed)
         return
     if message.content == 't.release note en':
-        embed = discord.Embed(title="◆2020/07/20(11:23)リリース◆", color=discord.Colour.red())
+        embed = discord.Embed(title="◆2020/07/21(12:43))リリース◆", color=discord.Colour.red())
         embed.add_field(name='Added function',
                         value="・Added translate function.", inline=False)
         embed.add_field(name='Bug fix',
