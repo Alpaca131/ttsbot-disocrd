@@ -78,11 +78,11 @@ async def on_message(message):
     if message.content == 't.help en':
         await message.channel.send('Wirting now...\n・ω・')
     if message.content == 't.release note':
-        embed = discord.Embed(title="◆2020/07/21(12:43)リリース◆", color=discord.Colour.red())
+        embed = discord.Embed(title="◆2020/07/21(15:13)リリース◆", color=discord.Colour.red())
         embed.add_field(name='機能追加',
-                        value="・翻訳機能を追加しました。ヘルプで使用方法を確認できます。\n・送信者の名前を読み上げる機能を追加しました。ヘルプで使用方法を確認できます。", inline=False)
+                        value="・読み上げ速度の指定機能を追加しました。", inline=False)
         embed.add_field(name='バグフィックス',
-                        value="・メンションのIDが読み上げられる問題を修正しました。", inline=False)
+                        value="・なし", inline=False)
         await message.channel.send(embed=embed)
         return
     if message.content == 't.release note en':
@@ -170,7 +170,7 @@ async def on_message(message):
                 await message.channel.send('「speed=」オプションが間違っています。「t.help」でヘルプを確認できます。')
                 return
             speed_num = m.group()[6:]
-            speech_speed[message.guild.id] = limit_num
+            speech_speed[message.guild.id] = speed_num
             speed_msg = '読み上げ速度：' + speed_num
         else:
             speech_speed[message.guild.id] = '1'
