@@ -143,10 +143,14 @@ async def on_message(message):
         # 名前読み上げ
         if message.content.find('name=on') != -1:
             name_speech[message.guild.id] = 'on'
+            name_msg = '名前読み上げ：オン'
         elif message.content.find('name=off') != -1:
             name_speech[message.guild.id] = 'off'
+            name_msg = '名前読み上げ：オフ'
         else:
             name_speech[message.guild.id] = 'off'
+            name_msg = '名前読み上げ：オフ'
+
         # 文字数制限
         if message.content.find('limit=')!= -1:
             m = re.search('limit=\d+', message.content)
@@ -178,34 +182,34 @@ async def on_message(message):
             print('JP')
             lang_msg = '日本語'
             language = 'ja-JP'
-            lang[str(message.guild.id)] = language
+            lang[message.guild.id] = language
         elif message.content.find('lang=kr')!= -1:
             print('KR')
             lang_msg = '韓国語'
             language = 'ko-KR'
-            lang[str(message.guild.id)] = language
+            lang[message.guild.id] = language
         elif message.content.find('lang=ch')!= -1:
             print('CH')
             lang_msg = '中国語'
             language = 'cmn-CN'
-            lang[str(message.guild.id)] = language
+            lang[message.guild.id] = language
         elif message.content.find('lang=en')!= -1:
             print('EN')
             lang_msg = '英語'
             language = 'en-US'
-            lang[str(message.guild.id)] = language
+            lang[message.guild.id] = language
         elif message.content.find('lang=auto')!= -1:
             print('auto')
             lang_msg = '自動検知'
             language = 'auto'
-            lang[str(message.guild.id)] = language
+            lang[message.guild.id] = language
         else:
             print('else-JP')
             lang_msg = '日本語'
             language = 'ja-JP'
-            lang[str(message.guild.id)] = language
+            lang[message.guild.id] = language
 
-        embed = discord.Embed(title= message.author.voice.channel.name + "に接続しました。", description='言語：'+ lang_msg +'\n' + limit_msg + '\n' + detect_msg, color=0x00c707)
+        embed = discord.Embed(title= message.author.voice.channel.name + "に接続しました。", description='言語：'+ lang_msg +'\n' + limit_msg + '\n' + detect_msg + '\n' + name_msg, color=0x00c707)
         await message.channel.send(embed=embed)
         await discord.VoiceChannel.connect(message.author.voice.channel)
         return
@@ -215,21 +219,16 @@ async def on_message(message):
     if message.content == 't.dc':
         voich = message.guild.voice_client
         # アクティブ状態リセット
-        if message.guild.id in voice_active_guild:
-            voice_active_guild.remove(message.guild.id)
-            del lang[str(message.guild.id)]
+        if message.guild.id in voice_active:
+            del lang[message.guild.id]
+            del lang[message.guild.id]
+            if message.guild.id in word_limit:
+                del word_limit[message.guild.id]
             await voich.disconnect()
-        elif message.channel.id in voice_active_ch:
-            voice_active_ch.remove(message.channel.id)
-            del lang[str(message.guild.id)]
-            await voich.disconnect()
+            return
         else:
             await message.channel.send('現在Botはどのチャンネルにも参加していません。')
             return
-        # 文字数制限リセット
-        if message.guild.id in word_limit:
-        	del word_limit[message.guild.id]
-        return
 
     if message.guild.id == voice_active.get(message.guild.id) or message.channel.id == voice_active.get(message.guild.id):
         # demojiでUnicode絵文字を除去
@@ -243,7 +242,7 @@ async def on_message(message):
         	msg_content = message.content[:int(limit)]
         else:
         	msg_content = message.content
-        language = lang[str(message.guild.id)]
+        language = lang.get(message.guild.id)
         if language == 'auto':
             detect_lang = translator.detect(message.content).lang
             if detect_lang == 'ja':
