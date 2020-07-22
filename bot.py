@@ -55,7 +55,7 @@ async def on_message(message):
         await dispand(message)
     if message.content == 't.help':
         embed = discord.Embed(title="ヘルプ・コマンド一覧", description="以下がこのBotで使えるコマンド一覧です。", color=discord.Colour.blue())
-        embed.add_field(name='t.con (例：t.con lang=en server limit=50)', value='(オプション：言語、文字数制限、反応する対象、名前読み上げ)'
+        embed.add_field(name='t.con (例：t.con lang=en server limit=50 name=on speed=1.25)', value='(オプション：言語、文字数制限、読み上げ速度、反応する対象、名前読み上げ)'
                                                                               '\n__**言語(lang=)**__\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n・auto･･･自動検知(※遅延が増加する場合があります。)'
                                                                               '\n__**文字数制限(limit=文字数)：**__\n・反応する文字数を制限できます。'
                                                                               '\n__**読み上げ速度(speed=数字)：**__\n・読み上げ速度を変更できます。デフォルトは1です。\n0.25～4の間で指定できます。'
