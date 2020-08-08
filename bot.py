@@ -41,9 +41,10 @@ async def on_ready():
         # もし未ロードだったら
         discord.opus.load_opus("heroku-buildpack-libopus")
 
+
 @client.event
 async def on_message(message):
-    global spk_rate_dic, expand_off
+    global spk_rate_dic, expand_off, voice_active
     if message.author.bot:
         return
     if message.guild is None:
@@ -55,12 +56,14 @@ async def on_message(message):
         await dispand(message)
     if message.content == 't.help':
         embed = discord.Embed(title="ヘルプ・コマンド一覧", description="以下がこのBotで使えるコマンド一覧です。", color=discord.Colour.blue())
-        embed.add_field(name='t.con (例：t.con lang=en server limit=50 name=on speed=1.25)', value='(オプション：言語、文字数制限、読み上げ速度、反応する対象、名前読み上げ)'
-                                                                              '\n__**言語(lang=)**__\n・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n・auto･･･自動検知(※遅延が増加する場合があります。)'
-                                                                              '\n__**文字数制限(limit=文字数)：**__\n・反応する文字数を制限できます。'
-                                                                              '\n__**読み上げ速度(speed=数字)：**__\n・読み上げ速度を変更できます。デフォルトは1です。\n0.25～4の間で指定できます。'
-                                                                              '\n__**反応する対象：**__\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応'
-                                                                              '\n__**名前読み上げ(name=on/off)：**__\nメッセージの前に送信者の名前を読み上げます。')
+        embed.add_field(name='t.con (例：t.con lang=en server limit=50 name=on speed=1.25)',
+                        value='(オプション：言語、文字数制限、読み上げ速度、反応する対象、名前読み上げ)'
+                              '\n__**言語(lang=)**__\n'
+                              '・指定なし(もしくはjp)･･･日本語\n・en･･･英語\n・kr･･･韓国語\n・ch･･･中国語\n・auto･･･自動検知(※遅延が増加する場合があります。) '
+                              '\n__**文字数制限(limit=文字数)：**__\n・反応する文字数を制限できます。'
+                              '\n__**読み上げ速度(speed=数字)：**__\n・読み上げ速度を変更できます。デフォルトは1です。\n0.25～4の間で指定できます。'
+                              '\n__**反応する対象：**__\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応'
+                              '\n__**名前読み上げ(name=on/off)：**__\nメッセージの前に送信者の名前を読み上げます。')
         embed.add_field(name='t.<lang>(翻訳して読み上げ)',
                         value="指定の言語に翻訳してから読み上げます。\n(※遅延が増加する場合があります。)", inline=False)
         embed.add_field(name='t.dc',
@@ -75,8 +78,10 @@ async def on_message(message):
                         value="このBotのサポートサーバーの招待リンクを送ります。\nバグ報告・ご要望等あればこちらまでお願いします。", inline=False)
         await message.channel.send(embed=embed)
         return
+
     if message.content == 't.help en':
         await message.channel.send('Wirting now...\n・ω・')
+
     if message.content == 't.release note':
         embed = discord.Embed(title="◆2020/07/21(15:13)リリース◆", color=discord.Colour.red())
         embed.add_field(name='機能追加',
@@ -85,6 +90,7 @@ async def on_message(message):
                         value="・なし", inline=False)
         await message.channel.send(embed=embed)
         return
+
     if message.content == 't.release note en':
         embed = discord.Embed(title="◆2020/07/21(12:43))リリース◆", color=discord.Colour.red())
         embed.add_field(name='Added function',
@@ -93,12 +99,17 @@ async def on_message(message):
                         value="・Fixed the problem that bot reads mention by ID.", inline=False)
         await message.channel.send(embed=embed)
         return
+
     if message.content == 't.invite':
-        await message.channel.send('このBotの招待リンクです。導入してもらえると喜びます。\n開発者:Alpaca#8032\nhttps://discord.com/api/oauth2/authorize?client_id=727508841368911943&permissions=3153472&scope=bot')
+        await message.channel.send('このBotの招待リンクです。導入してもらえると喜びます。'
+                                   '\n開発者:Alpaca#8032\nhttps://discord.com/api/oauth2/authorize?client_id'
+                                   '=727508841368911943&permissions=3153472&scope=bot')
         return
+
     if message.content == 't.support':
         await message.channel.send('このBotのサポートサーバーです。バグ報告・要望等あればこちらにお願いします。お気軽にどうぞ。\nhttps://discord.gg/DbtZAcX')
         return
+
     if message.content.startswith('t.expand'):
         if message.content[9:11] == 'on':
             if message.guild.id in expand_off:
@@ -153,7 +164,7 @@ async def on_message(message):
             name_msg = '名前読み上げ：オフ'
 
         # 文字数制限
-        if message.content.find('limit=')!= -1:
+        if message.content.find('limit=') != -1:
             m = re.search('limit=\d+', message.content)
             if m is None:
                 await message.channel.send('「limit=」オプションが間違っています。「t.help」でヘルプを確認できます。')
@@ -162,7 +173,7 @@ async def on_message(message):
             word_limit[message.guild.id] = limit_num
             limit_msg = '文字数制限：' + limit_num
         else:
-            limit_msg =  '文字数制限：なし'
+            limit_msg = '文字数制限：なし'
         # 読み上げ速度
         if message.content.find('speed=') != -1:
             m = re.search('speed=\d+(?:.\d+)?', message.content)
@@ -174,14 +185,14 @@ async def on_message(message):
             speed_msg = '読み上げ速度：' + speed_num
         else:
             speech_speed[message.guild.id] = '1'
-            speed_msg = '読み上げ速度：' + '1'
+            speed_msg = '読み上げ速度：1'
         # チャンネルに反応
-        if message.content.find('channel')!= -1:
+        if message.content.find('channel') != -1:
             print('channel')
             detect_msg = ' チャンネルに反応'
             voice_active[message.guild.id] = message.channel.id
         # サーバーに反応
-        elif message.content.find('server')!= -1:
+        elif message.content.find('server') != -1:
             print('guild')
             detect_msg = ' サーバー全体に反応'
             voice_active[message.guild.id] = message.guild.id
@@ -191,27 +202,27 @@ async def on_message(message):
             detect_msg = ' チャンネルに反応'
             voice_active[message.guild.id] = message.channel.id
         # 言語
-        if message.content.find('lang=jp')!= -1:
+        if message.content.find('lang=jp') != -1:
             print('JP')
             lang_msg = '日本語'
             language = 'ja-JP'
             lang[message.guild.id] = language
-        elif message.content.find('lang=kr')!= -1:
+        elif message.content.find('lang=kr') != -1:
             print('KR')
             lang_msg = '韓国語'
             language = 'ko-KR'
             lang[message.guild.id] = language
-        elif message.content.find('lang=ch')!= -1:
+        elif message.content.find('lang=ch') != -1:
             print('CH')
             lang_msg = '中国語'
             language = 'cmn-CN'
             lang[message.guild.id] = language
-        elif message.content.find('lang=en')!= -1:
+        elif message.content.find('lang=en') != -1:
             print('EN')
             lang_msg = '英語'
             language = 'en-US'
             lang[message.guild.id] = language
-        elif message.content.find('lang=auto')!= -1:
+        elif message.content.find('lang=auto') != -1:
             print('auto')
             lang_msg = '自動検知'
             language = 'auto'
@@ -222,11 +233,12 @@ async def on_message(message):
             language = 'ja-JP'
             lang[message.guild.id] = language
 
-        embed = discord.Embed(title= message.author.voice.channel.name + "に接続しました。", description='言語：'+ lang_msg +'\n' + limit_msg + '\n' + detect_msg + '\n' + name_msg + '\n' + speed_msg, color=0x00c707)
+        embed = discord.Embed(title=message.author.voice.channel.name + "に接続しました。",
+                              description='言語：' + lang_msg + '\n' + limit_msg + '\n' + detect_msg + '\n' + name_msg + '\n' + speed_msg,
+                              color=0x00c707)
         await message.channel.send(embed=embed)
         await discord.VoiceChannel.connect(message.author.voice.channel)
         return
-
 
     # 切断
     if message.content == 't.dc':
@@ -251,6 +263,10 @@ async def on_message(message):
         message.content = re.sub(r'<:\w*:\d*>', '', message.content)
         # 正規表現でメンションを除去
         message.content = re.sub(r'<@\d+>', '', message.content)
+        # 正規表現でメンションを除去2
+        message.content = re.sub(r'<@!\d+>', '', message.content)
+        # 正規表現でロールメンションを除去
+        message.content = re.sub(r'<@&\d+>', '', message.content)
         # URL除去
         if message.content.find('http') != -1:
             pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
@@ -259,10 +275,8 @@ async def on_message(message):
                 message.content = message.content.remove(item)
         # 文字数制限
         if message.guild.id in word_limit:
-        	limit = word_limit.get(message.guild.id)
-        	msg_content = message.content[:int(limit)]
-        else:
-        	msg_content = message.content
+            limit = word_limit.get(message.guild.id)
+            message.content = message.content[:int(limit)]
         # 言語判定
         language = lang.get(message.guild.id)
         if language == 'auto':
@@ -321,5 +335,6 @@ async def on_message(message):
             voich = message.guild.voice_client
             voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + 'data.mp3'), after=print('playing'))
             return
+
 
 client.run(TOKEN)
