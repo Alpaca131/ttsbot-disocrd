@@ -52,6 +52,7 @@ async def on_message(message):
     global spk_rate_dic, expand_off, voice_active
     if message.author.id == 727508841368911943 and message.channel.id == 742064500160594050:
         if message.content != 'ready':
+            print('file recieved')
             for attachment in message.attachments:
                 with urlopen(Request(attachment.url, headers={
                     'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) '
