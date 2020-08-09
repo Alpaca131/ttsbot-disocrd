@@ -69,7 +69,7 @@ async def on_message(message):
                 f.write(json.dumps(voice_active, ensure_ascii=False, indent=4))
             file = discord.File('voice_active.json')
             await message.channel.send('val', file=file)
-            loop.stop()
+            client.close()
 
     if message.author.bot:
         return
