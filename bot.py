@@ -50,8 +50,8 @@ async def on_ready():
 @client.event
 async def on_message(message):
     global spk_rate_dic, expand_off, voice_active
-    if message.author.id == 727508841368911943:
-        if message.content == 'val':
+    if message.author.id == 727508841368911943 and message.channel.id == 742064500160594050:
+        if message.content != 'ready':
             for attachment in message.attachments:
                 with urlopen(Request(attachment.url, headers={
                     'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) '
@@ -62,7 +62,7 @@ async def on_message(message):
                 with open('voice_active.json') as i:
                     voice_active = json.loads(str(i))
                     return
-        if message.content == 'ready':
+        else:
             with open('voice_active.json', 'wr', encoding='utf-8') as f:
                 f.write(voice_active.dumps(voice_active, ensure_ascii=False, indent=4))
             file = discord.File('voice_active.json')
