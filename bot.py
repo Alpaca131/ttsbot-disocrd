@@ -61,9 +61,7 @@ async def on_message(message):
                     data = web_file.read()
                     with open('voice_active.json', mode='wb') as local_file:
                         local_file.write(data)
-                with open('voice_active.json', mode='r') as i:
-                    voice_active = json.loads(str(i))
-                    return
+                        voice_active = json.loads(data)
         else:
             with open('voice_active.json', mode='w') as f:
                 f.write(json.dumps(voice_active, ensure_ascii=False, indent=4))
