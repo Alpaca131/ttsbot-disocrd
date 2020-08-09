@@ -40,9 +40,6 @@ async def on_ready():
     f.GetContentFile('expand.json')
     with open('expand.json') as f:
         expand_off = json.load(f)
-    if not discord.opus.is_loaded():
-        # もし未ロードだったら
-        discord.opus.load_opus("heroku-buildpack-libopus")
     await client.get_channel(742064500160594050).send('ready')
     print('ready')
 
