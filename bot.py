@@ -35,7 +35,6 @@ def handler(signum, frame):
 async def on_ready():
     global expand_off
     demoji.download_codes()
-    print('ready')
     await client.change_presence(activity=discord.Game(name="「t.help」でヘルプ", type=1))
     f = drive.CreateFile({'id': '1zX-mbDeN_Mlx-p_62WSE5zAgsqu_jFX5'})
     f.GetContentFile('expand.json')
@@ -45,6 +44,7 @@ async def on_ready():
         # もし未ロードだったら
         discord.opus.load_opus("heroku-buildpack-libopus")
     await client.get_channel(742064500160594050).send('ready')
+    print('ready')
 
 
 @client.event
