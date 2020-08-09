@@ -59,9 +59,7 @@ async def on_message(message):
                     'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) '
                                   'Gecko/20100101 Firefox/47.0'})) as web_file:
                     data = web_file.read()
-                    with open('voice_active.json', mode='wb') as local_file:
-                        local_file.write(data)
-                        voice_active = json.loads(data)
+                    voice_active = json.loads(data)
         else:
             with open('voice_active.json', mode='w') as f:
                 f.write(json.dumps(voice_active, ensure_ascii=False, indent=4))
