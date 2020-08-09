@@ -42,6 +42,9 @@ async def on_ready():
         expand_off = json.load(f)
     await client.get_channel(742064500160594050).send('ready')
     print('ready')
+    if not discord.opus.is_loaded():
+        # もし未ロードだったら
+        discord.opus.load_opus("heroku-buildpack-libopus")
 
 
 @client.event
@@ -57,7 +60,7 @@ async def on_message(message):
                     data = web_file.read()
                     with open('voice_active.json', mode='wb') as local_file:
                         local_file.write(data)
-                with open('voice_active.json') as i:
+                with open('voice_active.json', mode='r') as i:
                     voice_active = json.loads(str(i))
                     return
         else:
