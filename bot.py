@@ -25,6 +25,7 @@ lang = {}
 speech_speed = {}
 word_limit = {}
 read_name = {}
+voice_active ={}
 
 
 def handler(signum, frame):
