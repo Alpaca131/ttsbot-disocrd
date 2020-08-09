@@ -5,7 +5,6 @@ import signal
 import discord
 import os
 from dispander import dispand
-from discord.ext import tasks
 import re
 import json
 from urllib.request import *
@@ -24,13 +23,11 @@ drive = GoogleDrive(gauth)
 loop = asyncio.get_event_loop()
 lang = {}
 speech_speed = {}
-voice_active = {}
 word_limit = {}
-name_speech = {}
+read_name = {}
 
 
 def handler(signum, frame):
-    global stop
     print('signal catched')
 
 
@@ -54,13 +51,6 @@ async def on_ready():
 async def on_message(message):
     global spk_rate_dic, expand_off, voice_active
     if message.author.id == 727508841368911943:
-        if message.content == 'ready':
-            with open('voice_active.json', 'w', encoding='utf-8') as f:
-                json.dump(voice_active, f, ensure_ascii=False, indent=4)
-            file = discord.File('voice_active.json')
-            await message.channel.send('val', file=file)
-            loop.stop()
-
         if message.content == 'val':
             for attachment in message.attachments:
                 with urlopen(Request(attachment.url, headers={
@@ -69,8 +59,15 @@ async def on_message(message):
                     data = web_file.read()
                     with open('voice_active.json', mode='wb') as local_file:
                         local_file.write(data)
-                        voice_active = json.load(local_file)
-                        return
+                with open('voice_active.json') as i:
+                    voice_active = json.loads(str(i))
+                    return
+        if message.content == 'ready':
+            with open('voice_active.json', 'wr', encoding='utf-8') as f:
+                f.write(voice_active.dumps(voice_active, ensure_ascii=False, indent=4))
+            file = discord.File('voice_active.json')
+            await message.channel.send('val', file=file)
+            loop.stop()
 
     if message.author.bot:
         return
@@ -176,19 +173,18 @@ async def on_message(message):
                 return
 
     if message.content.startswith('t.con'):
-        global voice_active, name
         if message.author.voice is None:
             await message.channel.send('VCに接続してからもう一度お試し下さい。')
             return
         # 名前読み上げ
         if message.content.find('name=on') != -1:
-            name_speech[message.guild.id] = 'on'
+            read_name[message.guild.id] = 'on'
             name_msg = '名前読み上げ：オン'
         elif message.content.find('name=off') != -1:
-            name_speech[message.guild.id] = 'off'
+            read_name[message.guild.id] = 'off'
             name_msg = '名前読み上げ：オフ'
         else:
-            name_speech[message.guild.id] = 'off'
+            read_name[message.guild.id] = 'off'
             name_msg = '名前読み上げ：オフ'
 
         # 文字数制限
@@ -327,7 +323,7 @@ async def on_message(message):
         if message.content.startswith('t.'):
             message.content = translator.translate(message.content[5:], dest=message.content[2:4]).text
         # 名前読み上げ
-        if name_speech.get(message.guild.id) == 'on':
+        if read_name.get(message.guild.id) == 'on':
             if language == 'ja-JP':
                 message.content = message.author.name + '：' + message.content
             else:
