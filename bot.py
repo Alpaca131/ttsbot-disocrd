@@ -64,7 +64,7 @@ async def on_message(message):
                     voice_active = json.loads(str(i))
                     return
         else:
-            with open('voice_active.json', 'wr', encoding='utf-8') as f:
+            with open('voice_active.json', mode='wr', encoding='utf-8') as f:
                 f.write(voice_active.dumps(voice_active, ensure_ascii=False, indent=4))
             file = discord.File('voice_active.json')
             await message.channel.send('val', file=file)
