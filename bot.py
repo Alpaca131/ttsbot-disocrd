@@ -1,6 +1,7 @@
 import requests
 import base64
-import json
+import asyncio
+import signal
 import discord
 import os
 from dispander import dispand
@@ -20,11 +21,17 @@ str_api_key = os.environ['GCP_API']
 gauth = GoogleAuth()
 gauth.LocalWebserverAuth()
 drive = GoogleDrive(gauth)
+loop = asyncio.get_event_loop()
 lang = {}
 speech_speed = {}
 voice_active = {}
 word_limit = {}
 name_speech = {}
+
+
+def handler(signum, frame):
+    global stop
+    print('signal catched')
 
 
 @client.event
@@ -40,11 +47,31 @@ async def on_ready():
     if not discord.opus.is_loaded():
         # もし未ロードだったら
         discord.opus.load_opus("heroku-buildpack-libopus")
+    await client.get_channel(742064500160594050).send('ready')
 
 
 @client.event
 async def on_message(message):
     global spk_rate_dic, expand_off, voice_active
+    if message.author.id == 727508841368911943:
+        if message.content == 'ready':
+            with open('voice_active.json', 'w', encoding='utf-8') as f:
+                json.dump(voice_active, f, ensure_ascii=False, indent=4)
+            file = discord.File('voice_active.json')
+            await message.channel.send('val', file=file)
+            loop.stop()
+
+        if message.content == 'val':
+            for attachment in message.attachments:
+                with urlopen(Request(attachment.url, headers={
+                    'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) '
+                                  'Gecko/20100101 Firefox/47.0'})) as web_file:
+                    data = web_file.read()
+                    with open('voice_active.json', mode='wb') as local_file:
+                        local_file.write(data)
+                        voice_active = json.load(local_file)
+                        return
+
     if message.author.bot:
         return
     if message.guild is None:
@@ -81,6 +108,7 @@ async def on_message(message):
 
     if message.content == 't.help en':
         await message.channel.send('Wirting now...\n・ω・')
+        return
 
     if message.content == 't.release note':
         embed = discord.Embed(title="◆2020/07/21(15:13)リリース◆", color=discord.Colour.red())
@@ -256,7 +284,8 @@ async def on_message(message):
             await message.channel.send('現在Botはどのチャンネルにも参加していません。')
             return
 
-    if message.guild.id == voice_active.get(message.guild.id) or message.channel.id == voice_active.get(message.guild.id):
+    if message.guild.id == voice_active.get(message.guild.id) or message.channel.id == voice_active.get(
+            message.guild.id):
         # demojiでUnicode絵文字を除去
         message.content = demoji.replace(message.content, '')
         # 正規表現でカスタム絵文字を除去
@@ -337,4 +366,5 @@ async def on_message(message):
             return
 
 
-client.run(TOKEN)
+signal.signal(signal.SIGTERM, handler)
+loop.run_until_complete(client.start(TOKEN))
