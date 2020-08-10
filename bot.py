@@ -7,12 +7,13 @@ import os
 from dispander import dispand
 import re
 import json
-from urllib.request import *
+import urllib.request
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import demoji
 from googletrans import Translator
 import time
+import dill
 
 client = discord.Client()
 translator = Translator()
@@ -38,10 +39,6 @@ async def on_ready():
     global expand_off, this_process
     demoji.download_codes()
     await client.change_presence(activity=discord.Game(name="「t.help」でヘルプ", type=1))
-    f = drive.CreateFile({'id': '1zX-mbDeN_Mlx-p_62WSE5zAgsqu_jFX5'})
-    f.GetContentFile('expand.json')
-    with open('expand.json') as f:
-        expand_off = json.load(f)
     await client.get_channel(742064500160594050).send('ready')
     print('ready')
     this_process = str(time.time())
@@ -54,23 +51,26 @@ async def on_ready():
 async def on_message(message):
     global spk_rate_dic, expand_off, voice_active
     if message.author.id == 727508841368911943 and message.channel.id == 742064500160594050:
-        if message.content.startswith('ready'):
-            with open('voice_active.json', mode='w') as f:
-                f.write(json.dumps(voice_active, ensure_ascii=False, indent=4))
-            file = discord.File('voice_active.json')
-            await message.channel.send(this_process, file=file)
+        if message.content.startswith('ready:'):
+            if message.content[6:] == this_process:
+                return
+            dill.dump_session('session.pkl')
+            file = discord.File('session.pkl')
+            await message.channel.send(file=file)
             return
         else:
-            if message.content == this_process:
-                return
             print('file recieved')
             for attachment in message.attachments:
-                with urlopen(Request(attachment.url, headers={
-                    'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) '
-                                  'Gecko/20100101 Firefox/47.0'})) as web_file:
-                    data = web_file.read()
-                    voice_active = json.loads(data)
+                url = attachment.url
+                save_name = "session.pkl"
 
+                # ダウンロードを実行
+                opener = urllib.request.build_opener()
+                opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) '
+                                                    'Gecko/20100101 Firefox/47.0')]
+                urllib.request.install_opener(opener)
+                urllib.request.urlretrieve(url, save_name)
+                dill.load_session('session.pkl')
 
     if message.author.bot:
         return
@@ -287,22 +287,7 @@ async def on_message(message):
 
     if message.guild.id == voice_active.get(message.guild.id) or message.channel.id == voice_active.get(
             message.guild.id):
-        # demojiでUnicode絵文字を除去
-        message.content = demoji.replace(message.content, '')
-        # 正規表現でカスタム絵文字を除去
-        message.content = re.sub(r'<:\w*:\d*>', '', message.content)
-        # 正規表現でメンションを除去
-        message.content = re.sub(r'<@\d+>', '', message.content)
-        # 正規表現でメンションを除去2
-        message.content = re.sub(r'<@!\d+>', '', message.content)
-        # 正規表現でロールメンションを除去
-        message.content = re.sub(r'<@&\d+>', '', message.content)
-        # URL除去
-        if message.content.find('http') != -1:
-            pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
-            url_list = re.findall(pattern, message.content)
-            for item in url_list:
-                message.content = message.content.remove(item)
+        message.content = url_remove(text=message.content)
         # 文字数制限
         if message.guild.id in word_limit:
             limit = word_limit.get(message.guild.id)
@@ -326,41 +311,14 @@ async def on_message(message):
             except NameError:
                 language = 'ja-JP'
         # 読み上げ速度
-        speed_num = float(speech_speed.get(message.guild.id))
+        speed = float(speech_speed.get(message.guild.id))
         # 翻訳
         if message.content.startswith('t.'):
             message.content = translator.translate(message.content[5:], dest=message.content[2:4]).text
         # 名前読み上げ
         if read_name.get(message.guild.id) == 'on':
-            if language == 'ja-JP':
-                message.content = message.author.name + '：' + message.content
-            else:
-                message.content = message.author.name + ':' + message.content
-        str_url = "https://texttospeech.googleapis.com/v1/text:synthesize?key="
-        str_headers = {'Content-Type': 'application/json; charset=utf-8'}
-        url = str_url + str_api_key
-        str_json_data = {
-            'input': {
-                'text': message.content
-            },
-            'voice': {
-                'languageCode': language,
-                'name': language + '-Wavenet-C',
-                'ssmlGender': 'MALE'
-            },
-            'audioConfig': {
-                'audioEncoding': 'MP3',
-                "speakingRate": speed_num
-            }
-        }
-        jd = json.dumps(str_json_data)
-        # print(jd)
-        print("begin request")
-
-        s = requests.Session()
-        r = requests.post(url, data=jd, headers=str_headers)
-        print("status code : ", r.status_code)
-        print("end request")
+            message.content = message.author.name + ':' + message.content
+        r = tts_request(text=message.content, language=language, speed=speed)
         if r.status_code == 200:
             parsed = json.loads(r.text)
             with open(str(message.guild.id) + 'data.mp3', 'wb') as outfile:
@@ -371,6 +329,55 @@ async def on_message(message):
             except discord.errors.ClientException:
                 print('Already playing audio.')
                 return
+
+
+def url_remove(text):
+    # demojiでUnicode絵文字を除去
+    text = demoji.replace(text, '')
+    # 正規表現でカスタム絵文字を除去
+    text = re.sub(r'<:\w*:\d*>', '', text)
+    # 正規表現でメンションを除去
+    text = re.sub(r'<@\d+>', '', text)
+    # 正規表現でメンションを除去2
+    text = re.sub(r'<@!\d+>', '', text)
+    # 正規表現でロールメンションを除去
+    text = re.sub(r'<@&\d+>', '', text)
+    # URL除去
+    if text.find('http') != -1:
+        pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
+        url_list = re.findall(pattern, text)
+        for item in url_list:
+            text = text.remove(item)
+    return text
+
+
+def tts_request(text, language, speed):
+    str_url = "https://texttospeech.googleapis.com/v1/text:synthesize?key="
+    str_headers = {'Content-Type': 'application/json; charset=utf-8'}
+    url = str_url + str_api_key
+    str_json_data = {
+        'input': {
+            'text': text
+        },
+        'voice': {
+            'languageCode': language,
+            'name': language + '-Wavenet-C',
+            'ssmlGender': 'MALE'
+        },
+        'audioConfig': {
+            'audioEncoding': 'MP3',
+            "speakingRate": speed
+        }
+    }
+    jd = json.dumps(str_json_data)
+    # print(jd)
+    print("begin request")
+
+    s = requests.Session()
+    r = requests.post(url, data=jd, headers=str_headers)
+    print("status code : ", r.status_code)
+    print("end request")
+    return r
 
 
 signal.signal(signal.SIGTERM, handler)
