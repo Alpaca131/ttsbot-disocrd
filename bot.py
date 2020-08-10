@@ -361,7 +361,10 @@ async def on_message(message):
             with open(str(message.guild.id) + 'data.mp3', 'wb') as outfile:
                 outfile.write(base64.b64decode(parsed['audioContent']))
             voich = message.guild.voice_client
-            voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + 'data.mp3'), after=print('playing'))
+            try:
+                voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + 'data.mp3'), after=print('playing'))
+            except discord.errors.ClientException:
+                print('Already playing audio.')
             return
 
 
