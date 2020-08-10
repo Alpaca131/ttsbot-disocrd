@@ -365,7 +365,7 @@ async def on_message(message):
                 voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + 'data.mp3'), after=print('playing'))
             except discord.errors.ClientException:
                 print('Already playing audio.')
-            return
+                return
 
 
 signal.signal(signal.SIGTERM, handler)
