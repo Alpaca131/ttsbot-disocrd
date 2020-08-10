@@ -311,17 +311,20 @@ async def on_message(message):
         language = lang.get(message.guild.id)
         if language == 'auto':
             detect_lang = translator.detect(message.content).lang
-            if detect_lang == 'ja':
+            try:
+                if detect_lang == 'ja':
+                    language = 'ja-JP'
+                elif detect_lang == 'en':
+                    language = 'en-US'
+                elif detect_lang == 'ko':
+                    language = 'ko-KR'
+                elif detect_lang.find('CN'):
+                    language = 'cmn-CN'
+                else:
+                    await message.channel.send('サポートされてない言語です。\nError:Unsopported language. (lang=' + detect_lang + ')')
+                    return
+            except NameError:
                 language = 'ja-JP'
-            elif detect_lang == 'en':
-                language = 'en-US'
-            elif detect_lang == 'ko':
-                language = 'ko-KR'
-            elif detect_lang.find('CN'):
-                language = 'cmn-CN'
-            else:
-                await message.channel.send('サポートされてない言語です。\nError:Unsopported language. (lang=' + detect_lang + ')')
-                return
         # 読み上げ速度
         speed_num = float(speech_speed.get(message.guild.id))
         # 翻訳
