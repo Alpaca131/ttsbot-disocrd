@@ -12,6 +12,7 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import demoji
 from googletrans import Translator
+import time
 
 client = discord.Client()
 translator = Translator()
@@ -25,7 +26,7 @@ lang = {}
 speech_speed = {}
 word_limit = {}
 read_name = {}
-voice_active ={}
+voice_active = {}
 
 
 def handler(signum, frame):
@@ -50,9 +51,18 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global spk_rate_dic, expand_off, voice_active
+    global spk_rate_dic, expand_off, voice_active, this_process
     if message.author.id == 727508841368911943 and message.channel.id == 742064500160594050:
-        if message.content != 'ready':
+        if message.content.startswith('ready:'):
+            this_process = str(time.time())
+            with open('voice_active.json', mode='w') as f:
+                f.write(json.dumps(voice_active, ensure_ascii=False, indent=4))
+            file = discord.File('voice_active.json')
+            await message.channel.send(this_process, file=file)
+            return
+        else:
+            if message.content == this_process:
+                return
             print('file recieved')
             for attachment in message.attachments:
                 with urlopen(Request(attachment.url, headers={
@@ -60,11 +70,7 @@ async def on_message(message):
                                   'Gecko/20100101 Firefox/47.0'})) as web_file:
                     data = web_file.read()
                     voice_active = json.loads(data)
-        else:
-            with open('voice_active.json', mode='w') as f:
-                f.write(json.dumps(voice_active, ensure_ascii=False, indent=4))
-            file = discord.File('voice_active.json')
-            await message.channel.send(file=file)
+
 
     if message.author.bot:
         return
