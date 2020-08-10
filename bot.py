@@ -264,8 +264,10 @@ async def on_message(message):
                               description='言語：' + lang_msg + '\n' + limit_msg + '\n' + detect_msg + '\n' + name_msg + '\n' + speed_msg,
                               color=0x00c707)
         await message.channel.send(embed=embed)
-        await discord.VoiceChannel.connect(message.author.voice.channel)
-        return
+        try:
+            await discord.VoiceChannel.connect(message.author.voice.channel)
+        except discord.errors.ClientException:
+            return
 
     # 切断
     if message.content == 't.dc':
