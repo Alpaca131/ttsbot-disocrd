@@ -54,7 +54,7 @@ async def on_ready():
 async def on_message(message):
     global spk_rate_dic, expand_off, voice_active
     if message.author.id == 727508841368911943 and message.channel.id == 742064500160594050:
-        if message.content.startswith('ready:'):
+        if message.content.startswith('ready'):
             with open('voice_active.json', mode='w') as f:
                 f.write(json.dumps(voice_active, ensure_ascii=False, indent=4))
             file = discord.File('voice_active.json')
