@@ -35,7 +35,7 @@ def handler(signum, frame):
 
 @client.event
 async def on_ready():
-    global expand_off
+    global expand_off, this_process
     demoji.download_codes()
     await client.change_presence(activity=discord.Game(name="「t.help」でヘルプ", type=1))
     f = drive.CreateFile({'id': '1zX-mbDeN_Mlx-p_62WSE5zAgsqu_jFX5'})
@@ -44,6 +44,7 @@ async def on_ready():
         expand_off = json.load(f)
     await client.get_channel(742064500160594050).send('ready')
     print('ready')
+    this_process = str(time.time())
     if not discord.opus.is_loaded():
         # もし未ロードだったら
         discord.opus.load_opus("heroku-buildpack-libopus")
@@ -51,10 +52,9 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global spk_rate_dic, expand_off, voice_active, this_process
+    global spk_rate_dic, expand_off, voice_active
     if message.author.id == 727508841368911943 and message.channel.id == 742064500160594050:
         if message.content.startswith('ready:'):
-            this_process = str(time.time())
             with open('voice_active.json', mode='w') as f:
                 f.write(json.dumps(voice_active, ensure_ascii=False, indent=4))
             file = discord.File('voice_active.json')
