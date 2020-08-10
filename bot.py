@@ -39,6 +39,10 @@ async def on_ready():
     global expand_off, this_process
     demoji.download_codes()
     await client.change_presence(activity=discord.Game(name="「t.help」でヘルプ", type=1))
+    f = drive.CreateFile({'id': '1zX-mbDeN_Mlx-p_62WSE5zAgsqu_jFX5'})
+    f.GetContentFile('expand.json')
+    with open('expand.json') as f:
+        expand_off = json.load(f)
     await client.get_channel(742064500160594050).send('ready')
     print('ready')
     this_process = str(time.time())
