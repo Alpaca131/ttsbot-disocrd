@@ -75,6 +75,7 @@ async def on_message(message):
                 urllib.request.install_opener(opener)
                 urllib.request.urlretrieve(url, save_name)
                 dill.load_session('session.pkl')
+                print('session loaded')
 
     if message.author.bot:
         return
