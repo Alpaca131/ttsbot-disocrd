@@ -28,10 +28,13 @@ speech_speed = {}
 word_limit = {}
 read_name = {}
 voice_active = {}
+shutdown = False
 
 
 def handler(signum, frame):
+    global shutdown
     print('signal catched')
+    shutdown = True
 
 
 @client.event
@@ -55,19 +58,16 @@ async def on_ready():
 async def on_message(message):
     global spk_rate_dic, expand_off, voice_active
     if message.author.id == 727508841368911943 and message.channel.id == 742064500160594050:
-        if message.content.startswith('ready:'):
-            if message.content[6:] == this_process:
-                return
+        if message.content.startswith('ready') and shutdown:
             dill.dump_session('session.pkl')
             file = discord.File('session.pkl')
             await message.channel.send(file=file)
             return
-        else:
+        elif message.content == 'export':
             print('file recieved')
             for attachment in message.attachments:
                 url = attachment.url
                 save_name = "session.pkl"
-
                 # ダウンロードを実行
                 opener = urllib.request.build_opener()
                 opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) '
