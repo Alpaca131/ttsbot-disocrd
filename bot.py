@@ -113,6 +113,15 @@ async def on_message(message):
             if message.content == 'サーバー':
                 await message.channel.send(str(len(client.guilds)))
                 return
+            if message.content == 'reset':
+                global imported
+                imported.append('voice_active')
+                imported.append('read_name')
+                imported.append('word_limit')
+                imported.append('speech_speed')
+                imported.append('lang')
+                await message.channel.send('リセットしました。')
+                return
     if message.guild.id not in expand_off:
         await dispand(message)
     if message.content == 't.help':
