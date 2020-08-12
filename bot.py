@@ -30,13 +30,14 @@ word_limit = {}
 read_name = {}
 voice_active = {}
 shutdown = False
+SIGTERM = False
 imported = []
 
 
 def handler(signum, frame):
-    global shutdown
-    print('signal catched')
-    shutdown = True
+    global SIGTERM
+    print('signal catch')
+    SIGTERM = True
 
 
 @client.event
@@ -58,9 +59,11 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global spk_rate_dic, expand_off, voice_active, lang, speech_speed, word_limit, read_name, voice_active, imported
+    global spk_rate_dic, expand_off, voice_active, lang, speech_speed, word_limit, read_name, voice_active, imported, shutdown
+    if shutdown:
+        return
     if message.author.id == 727508841368911943 and message.channel.id == 742064500160594050:
-        if message.content == 'ready' and shutdown:
+        if message.content == 'ready' and SIGTERM:
             # lang
             dill.dump(lang, open('lang.dill', 'wb'))
             file = discord.File('lang.dill')
@@ -81,6 +84,7 @@ async def on_message(message):
             await message.channel.send('word_limit', file=file3)
             await message.channel.send('read_name', file=file4)
             await message.channel.send('voice_active', file=file5)
+            shutdown = True
             return
         elif message.content in file_name:
             print('file recieved')
@@ -153,20 +157,12 @@ async def on_message(message):
         return
 
     if message.content == 't.release note':
-        embed = discord.Embed(title="◆2020/07/21(15:13)リリース◆", color=discord.Colour.red())
+        embed = discord.Embed(title="◆2020/08/13(02:55)リリース◆", color=discord.Colour.red())
         embed.add_field(name='機能追加',
-                        value="・読み上げ速度の指定機能を追加しました。", inline=False)
-        embed.add_field(name='バグフィックス',
                         value="・なし", inline=False)
-        await message.channel.send(embed=embed)
-        return
-
-    if message.content == 't.release note en':
-        embed = discord.Embed(title="◆2020/07/21(12:43))リリース◆", color=discord.Colour.red())
-        embed.add_field(name='Added function',
-                        value="・Added translate function.", inline=False)
-        embed.add_field(name='Bug fix',
-                        value="・Fixed the problem that bot reads mention by ID.", inline=False)
+        embed.add_field(name='バグフィックス',
+                        value="・チャンネルのIDが読み上げられる不具合を修正しました。\n"
+                              "・定期再起動時のダウンタイムを無くしました。", inline=False)
         await message.channel.send(embed=embed)
         return
 
@@ -313,18 +309,21 @@ async def on_message(message):
 
     # 切断
     if message.content == 't.dc':
+        if not import_check():
+            return
         voich = message.guild.voice_client
         # アクティブ状態リセット
+        try:
+            await voich.disconnect()
+        except AttributeError:
+            await message.channel.send('現在Botはどのチャンネルにも接続していません。')
+            return
         if message.guild.id in voice_active:
             del lang[message.guild.id]
             del voice_active[message.guild.id]
             del speech_speed[message.guild.id]
             if message.guild.id in word_limit:
                 del word_limit[message.guild.id]
-            await voich.disconnect()
-            return
-        else:
-            await message.channel.send('現在Botはどのチャンネルにも参加していません。')
             return
 
     if message.guild.id == voice_active.get(message.guild.id) or message.channel.id == voice_active.get(
@@ -386,6 +385,8 @@ def url_remove(text):
     text = re.sub(r'<@!\d+>', '', text)
     # 正規表現でロールメンションを除去
     text = re.sub(r'<@&\d+>', '', text)
+    # 正規表現でチャンネルメンションを除去
+    text = re.sub(r'<#\d+>', '', text)
     # URL除去
     if text.find('http') != -1:
         pattern = "https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"
@@ -422,6 +423,7 @@ def tts_request(text, language, speed):
     print("status code : ", r.status_code)
     print("end request")
     return r
+
 
 def import_check():
     if 'voice_active' in imported and 'read_name' in imported and 'word_limit' in imported and 'speech_speed' in imported and 'lang' in imported:
