@@ -30,6 +30,7 @@ word_limit = {}
 read_name = {}
 voice_active = {}
 shutdown = False
+imported = []
 
 
 def handler(signum, frame):
@@ -57,7 +58,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global spk_rate_dic, expand_off, voice_active, lang, speech_speed, word_limit, read_name, voice_active
+    global spk_rate_dic, expand_off, voice_active, lang, speech_speed, word_limit, read_name, voice_active, imported
     if message.author.id == 727508841368911943 and message.channel.id == 742064500160594050:
         if message.content == 'ready' and shutdown:
             # lang
@@ -84,6 +85,7 @@ async def on_message(message):
         elif message.content in file_name:
             print('file recieved')
             for attachment in message.attachments:
+                imported.append(message.content)
                 url = attachment.url
                 save_name = message.content + ".dill"
                 # ダウンロードを実行
@@ -319,6 +321,8 @@ async def on_message(message):
 
     if message.guild.id == voice_active.get(message.guild.id) or message.channel.id == voice_active.get(
             message.guild.id):
+        if not import_check():
+            return
         message.content = url_remove(text=message.content)
         # 文字数制限
         if message.guild.id in word_limit:
@@ -353,11 +357,11 @@ async def on_message(message):
         r = tts_request(text=message.content, language=language, speed=speed)
         if r.status_code == 200:
             parsed = json.loads(r.text)
-            with open(str(message.guild.id) + 'data.mp3', 'wb') as outfile:
+            with open(str(message.channel.id) + '-data.mp3', 'wb') as outfile:
                 outfile.write(base64.b64decode(parsed['audioContent']))
             voich = message.guild.voice_client
             try:
-                voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + 'data.mp3'), after=print('playing'))
+                voich.play(discord.FFmpegPCMAudio(str(message.channel.id) + '-data.mp3'), after=print('playing'))
             except discord.errors.ClientException:
                 print('Already playing audio.')
                 return
@@ -410,6 +414,12 @@ def tts_request(text, language, speed):
     print("status code : ", r.status_code)
     print("end request")
     return r
+
+def import_check():
+    if 'voice_active' in imported and 'read_name' in imported and 'word_limit' in imported and 'speech_speed' in imported and 'lang' in imported:
+        return True
+    else:
+        return False
 
 
 signal.signal(signal.SIGTERM, handler)
