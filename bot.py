@@ -114,7 +114,6 @@ async def on_message(message):
                 await message.channel.send(str(len(client.guilds)))
                 return
             if message.content == 'reset':
-                global imported
                 imported.append('voice_active')
                 imported.append('read_name')
                 imported.append('word_limit')
