@@ -23,6 +23,7 @@ gauth = GoogleAuth()
 gauth.LocalWebserverAuth()
 drive = GoogleDrive(gauth)
 loop = asyncio.get_event_loop()
+file_name = ['voice_active', 'read_name', 'word_limit', 'speech_speed', 'lang']
 lang = {}
 speech_speed = {}
 word_limit = {}
@@ -56,7 +57,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global spk_rate_dic, expand_off, voice_active
+    global spk_rate_dic, expand_off, voice_active, lang, speech_speed, word_limit, read_name, voice_active
     if message.author.id == 727508841368911943 and message.channel.id == 742064500160594050:
         if message.content == 'ready' and shutdown:
             # lang
@@ -74,24 +75,33 @@ async def on_message(message):
             # vice_active
             dill.dump(voice_active, open('voice_active.dill', 'wb'))
             file5 = discord.File('voice_active.dill')
-            await message.channel.send('export', file=file)
-            await message.channel.send('export', file=file2)
-            await message.channel.send('export', file=file3)
-            await message.channel.send('export', file=file4)
-            await message.channel.send('export', file=file5)
+            await message.channel.send('lang', file=file)
+            await message.channel.send('speech_speed', file=file2)
+            await message.channel.send('word_limit', file=file3)
+            await message.channel.send('read_name', file=file4)
+            await message.channel.send('voice_active', file=file5)
             return
-        elif message.content == 'export':
+        elif message.content in file_name:
             print('file recieved')
             for attachment in message.attachments:
                 url = attachment.url
-                save_name = str(time.time()) + "dict.dill"
+                save_name = message.content + ".dill"
                 # ダウンロードを実行
                 opener = urllib.request.build_opener()
                 opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) '
                                                     'Gecko/20100101 Firefox/47.0')]
                 urllib.request.install_opener(opener)
                 urllib.request.urlretrieve(url, save_name)
-                dill.load(open(save_name, 'rb'))
+                if message.content == 'lang':
+                    lang = dill.load(open(save_name, 'rb'))
+                elif message.content == 'speech_speed':
+                    speech_speed = dill.load(open(save_name, 'rb'))
+                elif message.content == 'word_limit':
+                    word_limit = dill.load(open(save_name, 'rb'))
+                elif message.content == 'read_name':
+                    read_name = dill.load(open(save_name, 'rb'))
+                elif message.content == 'voice_active':
+                    voice_active = dill.load(open(save_name, 'rb'))
                 print('dict loaded')
 
     if message.author.bot:
