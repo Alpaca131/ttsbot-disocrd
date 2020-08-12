@@ -370,9 +370,9 @@ async def on_message(message):
             voich = message.guild.voice_client
             try:
                 voich.play(discord.FFmpegPCMAudio(str(message.channel.id) + '-data.mp3'), after=print('playing'))
-            except discord.errors.ClientException:
-                print('Already playing audio.')
-                return
+            except AttributeError:
+                await discord.VoiceChannel.connect(message.author.voice.channel)
+                voich.play(discord.FFmpegPCMAudio(str(message.channel.id) + '-data.mp3'), after=print('playing'))
 
 
 def url_remove(text):
