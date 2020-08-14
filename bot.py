@@ -66,8 +66,8 @@ async def on_ready():
         expand_off = json.load(f)
     f = drive.CreateFile({'id': '15twVdWyUw7yJSD0BaGTpi-lRil5XmY6t'})
     f.GetContentFile('server_data.json')
-    with open('server_data.json') as f:
-        server_data = json.load(f)
+    with open('server_data.json') as e:
+        server_data = json.load(e)
     await client.get_channel(742064500160594050).send('ready')
     print('ready')
     if not discord.opus.is_loaded():
@@ -380,7 +380,7 @@ async def connect(message):
     else:
         if message.guild.id in server_data:
             read_name_server_data = server_data.get(message.guild).get('read_name')
-            if read_name_server_data is not None:
+            if read_name_server_data != 'None':
                 read_name[message.guild.id] = read_name_server_data
                 if read_name_server_data == 'on':
                     name_msg = '名前読み上げ：オン'
@@ -405,7 +405,7 @@ async def connect(message):
     else:
         if message.guild.id in server_data:
             word_limit_server_data = server_data.get(message.guild.id).get('word_limit')
-            if word_limit_server_data is not None:
+            if word_limit_server_data != 'None':
                 word_limit[message.guild.id] = str(word_limit_server_data)
                 limit_msg = '文字数制限：' + str(word_limit_server_data)
             else:
@@ -426,7 +426,7 @@ async def connect(message):
     else:
         if message.guild.id in server_data:
             speech_speed_server_data = server_data.get(message.guild.id).get('speech_speed')
-            if speech_speed_server_data is not None:
+            if speech_speed_server_data != 'None':
                 speech_speed[message.guild.id] = str(speech_speed_server_data)
                 speed_msg = '読み上げ速度：' + str(speech_speed_server_data)
             else:
@@ -480,7 +480,7 @@ async def connect(message):
     else:
         if message.guild.id in server_data:
             lang_server_data = server_data.get(message.guild.id).get('lang')
-            if lang_server_data is not None:
+            if lang_server_data != 'None':
                 lang_name = language_name.get(lang_server_data)[0]
                 language = language_name.get(lang_server_data)[1]
                 lang[message.guild.id] = language
@@ -506,7 +506,7 @@ async def connect(message):
 
 
 async def save_settings(message):
-    onetime_server_dict = {'lang': None, 'word_limit':None, 'speech_speed': None, 'target': None, 'read_name': None}
+    onetime_server_dict = {'lang': 'None', 'word_limit': 'None', 'speech_speed': 'None', 'target': 'None', 'read_name': 'None'}
     embed = discord.Embed(title='サーバーごとに設定を保存できます',
                           description='選択肢の数字をチャットに入力して下さい。\n「quit」でキャンセルできます。', color=discord.Color.green())
     embed.add_field(name='1️⃣言語', value='・指定なし(もしくはjp)･･･日本語\n'
