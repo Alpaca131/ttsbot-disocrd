@@ -378,8 +378,20 @@ async def connect(message):
         read_name[message.guild.id] = 'off'
         name_msg = '名前読み上げ：オフ'
     else:
-        read_name[message.guild.id] = 'off'
-        name_msg = '名前読み上げ：オフ'
+        if server_data.get(message.guild.id) is not None:
+            read_name_server_data = server_data.get(message.guild).get('read_name')
+            if read_name_server_data is not None:
+                read_name[message.guild.id] = read_name_server_data
+                if read_name_server_data == 'on':
+                    name_msg = '名前読み上げ：オン'
+                else:
+                    name_msg = '名前読み上げ：オフ'
+            else:
+                read_name[message.guild.id] = 'off'
+                name_msg = '名前読み上げ：オフ(デフォルト)'
+        else:
+            read_name[message.guild.id] = 'off'
+            name_msg = '名前読み上げ：オフ(デフォルト)'
 
     # 文字数制限
     if message.content.find('limit=') != -1:
@@ -391,8 +403,17 @@ async def connect(message):
         word_limit[message.guild.id] = limit_num
         limit_msg = '文字数制限：' + limit_num
     else:
-        word_limit[message.guild.id] = 50
-        limit_msg = '文字数制限：50(デフォルト)'
+        if server_data.get(message.guild.id) is not None:
+            word_limit_server_data = server_data.get(message.guild.id).get('word_limit')
+            if word_limit_server_data is not None:
+                word_limit[message.guild.id] = str(word_limit_server_data)
+                limit_msg = '文字数制限：' + str(word_limit_server_data)
+            else:
+                word_limit[message.guild.id] = 50
+                limit_msg = '文字数制限：50(デフォルト)'
+        else:
+            word_limit[message.guild.id] = 50
+            limit_msg = '文字数制限：50(デフォルト)'
     # 読み上げ速度
     if message.content.find('speed=') != -1:
         m = re.search('speed=\d+(?:.\d+)?', message.content)
@@ -403,8 +424,18 @@ async def connect(message):
         speech_speed[message.guild.id] = speed_num
         speed_msg = '読み上げ速度：' + speed_num
     else:
-        speech_speed[message.guild.id] = '1'
-        speed_msg = '読み上げ速度：1'
+        if server_data.get(message.guild.id) is not None:
+            speech_speed_server_data = server_data.get(message.guild.id).get('speech_speed')
+            if speech_speed_server_data is not None:
+                speech_speed[message.guild.id] = str(speech_speed_server_data)
+                speed_msg = '読み上げ速度：' + str(speech_speed_server_data)
+            else:
+                speech_speed[message.guild.id] = '1'
+                speed_msg = '読み上げ速度：1(デフォルト)'
+        else:
+            speech_speed[message.guild.id] = '1'
+            speed_msg = '読み上げ速度：1(デフォルト)'
+
     # チャンネルに反応
     if message.content.find('channel') != -1:
         print('channel')
@@ -417,9 +448,24 @@ async def connect(message):
         voice_active[message.guild.id] = message.guild.id
     # その他(チャンネルに反応)
     else:
-        print('else-ch')
-        detect_msg = 'チャンネルに反応'
-        voice_active[message.guild.id] = message.channel.id
+        if server_data.get(message.guild.id) is not None:
+            target_server_data = server_data.get(message.guild.id).get('target')
+            if target_server_data == 'server':
+                print('guild')
+                detect_msg = 'サーバー全体に反応'
+                voice_active[message.guild.id] = message.guild.id
+            elif target_server_data == 'channel':
+                print('channel')
+                detect_msg = 'チャンネルに反応'
+                voice_active[message.guild.id] = message.channel.id
+            else:
+                print('channel')
+                detect_msg = 'チャンネルに反応(デフォルト)'
+                voice_active[message.guild.id] = message.channel.id
+        else:
+            print('channel')
+            detect_msg = 'チャンネルに反応(デフォルト)'
+            voice_active[message.guild.id] = message.channel.id
     # 言語
     lang_msg_start = message.content.find('lang=')
     if lang_msg_start != -1:
@@ -432,11 +478,22 @@ async def connect(message):
             await message.channel.send('「lang=」オプションが間違っています。「t.help」でヘルプを確認できます。')
             return
     else:
-        print('else-jp')
-        lang_name = '日本語'
-        language = 'ja-JP'
-        lang[message.guild.id] = language
-        return
+        if server_data.get(message.guild.id) is not None:
+            lang_server_data = server_data.get(message.guild.id).get('lang')
+            if lang_server_data is not None:
+                lang_name = language_name.get(lang_server_data)[0]
+                language = language_name.get(lang_server_data)[1]
+                lang[message.guild.id] = language
+            else:
+                print('else-jp')
+                lang_name = '日本語'
+                language = 'ja-JP'
+                lang[message.guild.id] = language
+        else:
+            print('else-jp')
+            lang_name = '日本語'
+            language = 'ja-JP'
+            lang[message.guild.id] = language
 
     embed = discord.Embed(title=message.author.voice.channel.name + "に接続しました。",
                           description='言語：' + lang_name + '\n' + limit_msg + '\n' + detect_msg + '\n' + name_msg + '\n' + speed_msg,
@@ -547,13 +604,13 @@ async def save_settings(message):
 
         if answer_msg.content == '3':
             speech_speed_answer = await client.wait_for('message')
-            if not str.isdigit(speech_speed_answer.content):
+            if not float.is_integer(speech_speed_answer.content):
                 embed = discord.Embed(title='エラー：数字を入力して下さい',
                                       description='数字を入力して下さい。' + '\n`終了し保存するには「save」と入力します。`',
                                       color=discord.Color.red())
                 await wizzard.edit(embed=embed)
                 continue
-            onetime_server_dict['speech_speed'] = int(speech_speed_answer.content)
+            onetime_server_dict['speech_speed'] = float(speech_speed_answer.content)
             embed = discord.Embed(title='デフォルトの読み上げ速度を設定しました',
                                   description='読み上げ速度：' + speech_speed_answer.content + '\n`終了し保存するには「save」と入力します。`',
                                   color=discord.Color.red())
@@ -592,10 +649,12 @@ async def save_settings(message):
                 await wizzard.edit(embed=embed)
                 continue
         if answer_msg.content == '6':
-            embed = discord.Embed(title='エラー：実装中です。使用できません。',
+            embed = discord.Embed(title='エラー：実装中です。まだ使用できません。',
                                   description='None' + '\n`終了し保存するには「save」と入力します。`',
                                   color=discord.Color.red())
             await wizzard.edit(embed=embed)
             continue
+
+
 signal.signal(signal.SIGTERM, handler)
 loop.run_until_complete(client.start(TOKEN))
