@@ -378,7 +378,7 @@ async def connect(message):
         read_name[message.guild.id] = 'off'
         name_msg = '名前読み上げ：オフ'
     else:
-        if server_data.get(message.guild.id) is not None:
+        if message.guild.id not in server_data:
             read_name_server_data = server_data.get(message.guild).get('read_name')
             if read_name_server_data is not None:
                 read_name[message.guild.id] = read_name_server_data
@@ -403,7 +403,7 @@ async def connect(message):
         word_limit[message.guild.id] = limit_num
         limit_msg = '文字数制限：' + limit_num
     else:
-        if server_data.get(message.guild.id) is not None:
+        if message.guild.id not in server_data:
             word_limit_server_data = server_data.get(message.guild.id).get('word_limit')
             if word_limit_server_data is not None:
                 word_limit[message.guild.id] = str(word_limit_server_data)
@@ -424,7 +424,7 @@ async def connect(message):
         speech_speed[message.guild.id] = speed_num
         speed_msg = '読み上げ速度：' + speed_num
     else:
-        if server_data.get(message.guild.id) is not None:
+        if message.guild.id not in server_data:
             speech_speed_server_data = server_data.get(message.guild.id).get('speech_speed')
             if speech_speed_server_data is not None:
                 speech_speed[message.guild.id] = str(speech_speed_server_data)
@@ -448,7 +448,7 @@ async def connect(message):
         voice_active[message.guild.id] = message.guild.id
     # その他(チャンネルに反応)
     else:
-        if server_data.get(message.guild.id) is not None:
+        if message.guild.id not in server_data:
             target_server_data = server_data.get(message.guild.id).get('target')
             if target_server_data == 'server':
                 print('guild')
@@ -478,7 +478,7 @@ async def connect(message):
             await message.channel.send('「lang=」オプションが間違っています。「t.help」でヘルプを確認できます。')
             return
     else:
-        if server_data.get(message.guild.id) is not None:
+        if message.guild.id not in server_data:
             lang_server_data = server_data.get(message.guild.id).get('lang')
             if lang_server_data is not None:
                 lang_name = language_name.get(lang_server_data)[0]
