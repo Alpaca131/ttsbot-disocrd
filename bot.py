@@ -379,7 +379,7 @@ async def connect(message):
         name_msg = '名前読み上げ：オフ'
     else:
         if message.guild.id in server_data:
-            read_name_server_data = server_data.get(message.guild).get('read_name')
+            read_name_server_data = server_data.get(message.guild.id).get('read_name')
             if read_name_server_data != 'None':
                 read_name[message.guild.id] = read_name_server_data
                 if read_name_server_data == 'on':
@@ -388,10 +388,10 @@ async def connect(message):
                     name_msg = '名前読み上げ：オフ'
             else:
                 read_name[message.guild.id] = 'off'
-                name_msg = '名前読み上げ：オフ(デフォルト)'
+                name_msg = '名前読み上げ：オフ　(デフォルト)'
         else:
             read_name[message.guild.id] = 'off'
-            name_msg = '名前読み上げ：オフ(デフォルト)'
+            name_msg = '名前読み上げ：オフ　(デフォルト)'
 
     # 文字数制限
     if message.content.find('limit=') != -1:
@@ -410,10 +410,10 @@ async def connect(message):
                 limit_msg = '文字数制限：' + str(word_limit_server_data)
             else:
                 word_limit[message.guild.id] = 50
-                limit_msg = '文字数制限：50(デフォルト)'
+                limit_msg = '文字数制限：50　(デフォルト)'
         else:
             word_limit[message.guild.id] = 50
-            limit_msg = '文字数制限：50(デフォルト)'
+            limit_msg = '文字数制限：50　(デフォルト)'
     # 読み上げ速度
     if message.content.find('speed=') != -1:
         m = re.search('speed=\d+(?:.\d+)?', message.content)
@@ -431,10 +431,10 @@ async def connect(message):
                 speed_msg = '読み上げ速度：' + str(speech_speed_server_data)
             else:
                 speech_speed[message.guild.id] = '1'
-                speed_msg = '読み上げ速度：1(デフォルト)'
+                speed_msg = '読み上げ速度：1　(デフォルト)'
         else:
             speech_speed[message.guild.id] = '1'
-            speed_msg = '読み上げ速度：1(デフォルト)'
+            speed_msg = '読み上げ速度：1　(デフォルト)'
 
     # チャンネルに反応
     if message.content.find('channel') != -1:
@@ -460,11 +460,11 @@ async def connect(message):
                 voice_active[message.guild.id] = message.channel.id
             else:
                 print('channel')
-                detect_msg = 'チャンネルに反応(デフォルト)'
+                detect_msg = 'チャンネルに反応　(デフォルト)'
                 voice_active[message.guild.id] = message.channel.id
         else:
             print('channel')
-            detect_msg = 'チャンネルに反応(デフォルト)'
+            detect_msg = 'チャンネルに反応　(デフォルト)'
             voice_active[message.guild.id] = message.channel.id
     # 言語
     lang_msg_start = message.content.find('lang=')
