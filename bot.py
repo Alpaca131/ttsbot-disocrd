@@ -167,7 +167,7 @@ async def on_message(message):
             voich = message.guild.voice_client
             try:
                 voich.play(discord.FFmpegPCMAudio(str(message.channel.id) + '-data.mp3'), after=print('playing'))
-            except AttributeError:
+            except AttributeError or discord.errors.ClientException:
                 await discord.VoiceChannel.connect(message.author.voice.channel)
                 voich.play(discord.FFmpegPCMAudio(str(message.channel.id) + '-data.mp3'), after=print('playing'))
 
