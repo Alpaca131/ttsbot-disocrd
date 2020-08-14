@@ -525,7 +525,7 @@ async def save_settings(message):
                     value='・特殊な読み方の単語を辞書に登録します。', inline=False)
     await message.channel.send(embed=embed)
     embed = discord.Embed(title='設定ウィザード',
-                          description='`t.`の後に選択肢の番号を入力して下さい。',
+                          description='選択肢の番号を半角数字で入力して下さい。',
                           color=discord.Color.red())
     wizzard = await message.channel.send(embed=embed)
     save = False
@@ -654,6 +654,7 @@ async def save_settings(message):
                                   color=discord.Color.red())
             await wizzard.edit(embed=embed)
             continue
+    return
 
 
 signal.signal(signal.SIGTERM, handler)
