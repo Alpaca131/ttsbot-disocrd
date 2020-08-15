@@ -26,9 +26,9 @@ loop = asyncio.get_event_loop()
 file_name = ['voice_active', 'read_name', 'word_limit', 'speech_speed', 'lang']
 language_name = {'jp': ['日本語', 'ja-JP'], 'kr': ['韓国語', 'ko-KR'], 'ch': ['中国語', 'cmn-CN'],
                  'en': ['英語', 'en-US'], 'auto': ['自動検知', 'auto']}
-message_dict = {'1': ['言語', '言語を入力して下さい。'], '2': ['文字数制限', '文字数を入力して下さい。'], '3': ['読み上げ速度', '0.25～4までの間で入力して下さい。'],
-                '4': ['反応する対象', 'channel/serverのどちらかを入力して下さい。'],
-                '5': ['名前読み上げ', 'on/offのどちらかを入力してください。'], '6': ['辞書登録', '単語を入力して下さい']}
+message_dict = {'1': ['言語', '言語を入力して下さい。', 'lang'], '2': ['文字数制限', '文字数を入力して下さい。', 'word_limit'], '3': ['読み上げ速度', '0.25～4までの間で入力して下さい。', 'speech_speed'],
+                '4': ['反応する対象', 'channel/serverのどちらかを入力して下さい。', 'target'],
+                '5': ['名前読み上げ', 'on/offのどちらかを入力してください。', 'read_name'], '6': ['辞書登録', '単語を入力して下さい']}
 server_data = {}
 lang = {}
 speech_speed = {}
@@ -93,7 +93,7 @@ async def on_message(message):
     if message.content == 't.release note':
         embed = discord.Embed(title="◆2020/08/15(05:30)リリース◆", color=discord.Colour.red())
         embed.add_field(name='機能追加',
-                        value="・サーバーごとに値を保存できるようになりました。", inline=False)
+                        value="・`t.save`で設定時に、既に保存されてる値が削除されないようになりました。", inline=False)
         embed.add_field(name='バグフィックス',
                         value="・なし", inline=False)
         await message.channel.send(embed=embed)
@@ -115,7 +115,38 @@ async def on_message(message):
 
     if message.content.startswith('t.con'):
         await connect(message=message)
-
+    if message.content == 't.del':
+        if message.guild.id in server_data:
+            embed = discord.Embed(title='削除中', color=discord.Colour.red())
+            deleting_msg = await message.channel.send(embed=embed)
+            del server_data[message.guild.id]
+            with open('server_data.json', 'w') as f:
+                json.dump(server_data, f, indent=4)
+            filepath = 'server_data.json'
+            title = 'server_data.json'
+            file = drive.CreateFile(
+                {'id': '15twVdWyUw7yJSD0BaGTpi-lRil5XmY6t', 'title': title, 'mimeType': 'application/json'})
+            file.SetContentFile(filepath)
+            file.Upload()
+            print('server_data upload-complete')
+            embed = discord.Embed(title='削除完了')
+            await deleting_msg.edit(embed=embed)
+            return
+        else:
+            'サーバーのデフォルト設定はまだ保存されていません。'
+    if message.content == 't.view':
+        if message.guild.id in server_data:
+            embed = discord.Embed(title='サーバーのデフォルト設定')
+            for item in message_dict:
+                if item == '6':
+                    continue
+                name = message_dict.get(item)[0]
+                val = server_data.get(message.guild.id).get(message_dict.get(item)[2])
+                if val == 'None':
+                    val = '未設定(デフォルト)'
+                embed.add_field(name=name, value=val, inline=False)
+            await message.channel.send(embed=embed)
+            return
     # 切断
     if message.content == 't.dc':
         if not import_check():
@@ -508,8 +539,12 @@ async def connect(message):
 
 
 async def save_settings(message):
-    onetime_server_dict = {'lang': 'None', 'word_limit': 'None', 'speech_speed': 'None', 'target': 'None',
-                           'read_name': 'None'}
+    if message.guild.id in server_data:
+        onetime_server_dict = server_data.get(message.guild.id)
+
+    else:
+        onetime_server_dict = {'lang': 'None', 'word_limit': 'None', 'speech_speed': 'None', 'target': 'None',
+                               'read_name': 'None'}
     embed = discord.Embed(title='サーバーごとに設定を保存できます',
                           description='選択肢の数字をチャットに入力して下さい。\n「quit」でキャンセルできます。', color=discord.Color.green())
     embed.add_field(name='1️⃣言語', value='・指定なし(もしくはjp)･･･日本語\n'
