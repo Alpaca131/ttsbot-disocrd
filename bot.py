@@ -533,7 +533,8 @@ async def save_settings(message):
     save = False
     while not save:
         answer_msg = await client.wait_for('message')
-        print(answer_msg.content)
+        if answer_msg.author.bot:
+            continue
         if answer_msg.content == 'save':
             save = True
             embed = discord.Embed(title='保存中...',
