@@ -26,7 +26,7 @@ loop = asyncio.get_event_loop()
 file_name = ['voice_active', 'read_name', 'word_limit', 'speech_speed', 'lang']
 language_name = {'jp': ['日本語', 'ja-JP'], 'kr': ['韓国語', 'ko-KR'], 'ch': ['中国語', 'cmn-CN'],
                  'en': ['英語', 'en-US'], 'auto': ['自動検知', 'auto']}
-message_dict = {'1': ['言語', '言語を入力して下さい。'], '2': ['文字数制限', '数字を入力して下さい。'], '3': ['読み上げ速度', '数字を入力して下さい。'],
+message_dict = {'1': ['言語', '言語を入力して下さい。'], '2': ['文字数制限', '文字数を入力して下さい。'], '3': ['読み上げ速度', '0.25～4までの間で入力して下さい。'],
                 '4': ['反応する対象', 'channel/serverのどちらかを入力して下さい。'],
                 '5': ['名前読み上げ', 'on/offのどちらかを入力してください。'], '6': ['辞書登録', '単語を入力して下さい']}
 server_data = {}
@@ -531,7 +531,7 @@ async def save_settings(message):
                           description='選択肢の番号を半角数字で入力して下さい。',
                           color=discord.Color.red())
     wizzard = await message.channel.send(embed=embed)
-    guide_msg = '\n`追加で設定するには、選択肢の数字を入力します。`\n`終了し保存するには、「save」と入力します。`'
+    guide_msg = '\n`追加で設定するには、選択肢の数字を入力します。`\n`終了し保存するには、「save」と入力します。`\n`キャンセルするには「quit」と入力します。`'
     save = False
     while not save:
         def check_bot(m):
@@ -577,7 +577,7 @@ async def save_settings(message):
             await wizzard.edit(embed=embed)
             return
         embed = discord.Embed(title=message_dict.get(answer_msg.content)[0],
-                              description=message_dict.get(answer_msg.content)[1] + guide_msg,
+                              description=message_dict.get(answer_msg.content)[1],
                               color=discord.Color.red())
         await wizzard.edit(embed=embed)
         # 言語オプション
@@ -593,7 +593,7 @@ async def save_settings(message):
                 await wizzard.edit(embed=embed)
                 continue
             else:
-                embed = discord.Embed(title='エラー：サポートしていない言語を指定しているか、オプションが間違っています',
+                embed = discord.Embed(title='エラー：サポートしていない言語を指定しています',
                                       description='autoオプションをお試し下さい。もしかしたら検知できるかもしれません。' + guide_msg,
                                       color=discord.Color.red())
                 await wizzard.edit(embed=embed)
@@ -602,8 +602,8 @@ async def save_settings(message):
         elif answer_msg.content == '2':
             word_limit_answer = await client.wait_for('message', check=check_bot)
             if not str.isdigit(word_limit_answer.content):
-                embed = discord.Embed(title='エラー：数字を入力して下さい',
-                                      description='数字を入力して下さい。' + guide_msg,
+                embed = discord.Embed(title='エラー：数字以外が入力されました',
+                                      description='半角数字を入力して下さい。' + guide_msg,
                                       color=discord.Color.red())
                 await wizzard.edit(embed=embed)
                 continue
@@ -624,8 +624,8 @@ async def save_settings(message):
                 await wizzard.edit(embed=embed)
                 continue
             except ValueError:
-                embed = discord.Embed(title='エラー：数字を入力して下さい',
-                                      description='数字を入力して下さい。' + guide_msg,
+                embed = discord.Embed(title='エラー：数字以外が入力されました',
+                                      description='半角数字を入力して下さい。' + guide_msg,
                                       color=discord.Color.red())
                 await wizzard.edit(embed=embed)
                 continue
@@ -641,7 +641,7 @@ async def save_settings(message):
                 await wizzard.edit(embed=embed)
                 continue
             else:
-                embed = discord.Embed(title='エラー：channel/serverのどちらかを入力して下さい',
+                embed = discord.Embed(title='エラー：channel/server以外が入力されました',
                                       description='channel/serverのどちらかを入力して下さい。' + guide_msg,
                                       color=discord.Color.red())
                 await wizzard.edit(embed=embed)
@@ -658,7 +658,7 @@ async def save_settings(message):
                 await wizzard.edit(embed=embed)
                 continue
             else:
-                embed = discord.Embed(title='エラー：on/offのどちらかを入力して下さい',
+                embed = discord.Embed(title='エラー：on/off以外が入力されました',
                                       description='on/offのどちらかを入力して下さい。' + guide_msg,
                                       color=discord.Color.red())
                 await wizzard.edit(embed=embed)
