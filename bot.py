@@ -553,19 +553,19 @@ async def save_settings(message):
                                   description='保存が完了しました。',
                                   color=discord.Color.red())
             await wizzard.edit(embed=embed)
-            break
-        if answer_msg.content == 'quit':
+            return
+        elif answer_msg.content == 'quit':
             embed = discord.Embed(title='終了',
                                   description='キャンセルしました。',
                                   color=discord.Color.red())
             await wizzard.edit(embed=embed)
-            break
-        if answer_msg.content not in message_dict:
+            return
+        elif answer_msg.content not in message_dict:
             embed = discord.Embed(title='エラー：メッセージが正しくありません',
                                   description='指定のメッセージ以外が送られたため、操作をキャンセルしました',
                                   color=discord.Color.red())
             await wizzard.edit(embed=embed)
-            break
+            return
         embed = discord.Embed(title=message_dict.get(answer_msg.content)[0],
                               description=message_dict.get(answer_msg.content)[1] + '\n`終了し保存するには「save」と入力します。`',
                               color=discord.Color.red())
@@ -589,7 +589,7 @@ async def save_settings(message):
                 await wizzard.edit(embed=embed)
                 continue
 
-        if answer_msg.content == '2':
+        elif answer_msg.content == '2':
             word_limit_answer = await client.wait_for('message')
             if not str.isdigit(word_limit_answer.content):
                 embed = discord.Embed(title='エラー：数字を入力して下さい',
@@ -604,7 +604,7 @@ async def save_settings(message):
             await wizzard.edit(embed=embed)
             continue
 
-        if answer_msg.content == '3':
+        elif answer_msg.content == '3':
             speech_speed_answer = await client.wait_for('message')
             if not float.is_integer(speech_speed_answer.content):
                 embed = discord.Embed(title='エラー：数字を入力して下さい',
@@ -619,7 +619,7 @@ async def save_settings(message):
             await wizzard.edit(embed=embed)
             continue
 
-        if answer_msg.content == '4':
+        elif answer_msg.content == '4':
             target_answer = await client.wait_for('message')
             if target_answer.content == 'channel' or target_answer.content == 'server':
                 onetime_server_dict['target'] = target_answer.content
@@ -635,7 +635,7 @@ async def save_settings(message):
                 await wizzard.edit(embed=embed)
                 continue
 
-        if answer_msg.content == '5':
+        elif answer_msg.content == '5':
             read_name_answer = await client.wait_for('message')
             if read_name_answer.content == 'on' or read_name_answer.content == 'off':
                 onetime_server_dict['read_name'] = read_name_answer.content
@@ -650,7 +650,7 @@ async def save_settings(message):
                                       color=discord.Color.red())
                 await wizzard.edit(embed=embed)
                 continue
-        if answer_msg.content == '6':
+        elif answer_msg.content == '6':
             embed = discord.Embed(title='エラー：実装中です。まだ使用できません。',
                                   description='None' + '\n`終了し保存するには「save」と入力します。`',
                                   color=discord.Color.red())
