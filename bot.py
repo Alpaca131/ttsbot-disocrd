@@ -577,7 +577,7 @@ async def save_settings(message):
         if answer_msg.content == '1':
             lang_answer = await client.wait_for('message')
             if lang_answer.author.bot:
-                return
+                continue
             if lang_answer.content in language_name:
                 lang_name = language_name.get(lang_answer.content)[0]
                 language = language_name.get(lang_answer.content)[1]
@@ -597,7 +597,7 @@ async def save_settings(message):
         elif answer_msg.content == '2':
             word_limit_answer = await client.wait_for('message')
             if word_limit_answer.author.bot:
-                return
+                continue
             if not str.isdigit(word_limit_answer.content):
                 embed = discord.Embed(title='エラー：数字を入力して下さい',
                                       description='数字を入力して下さい。' + '\n`終了し保存するには「save」と入力します。`',
@@ -614,7 +614,7 @@ async def save_settings(message):
         elif answer_msg.content == '3':
             speech_speed_answer = await client.wait_for('message')
             if speech_speed_answer.author.bot:
-                return
+                continue
             try:
                 onetime_server_dict['speech_speed'] = float(speech_speed_answer.content)
                 embed = discord.Embed(title='デフォルトの読み上げ速度を設定しました',
@@ -632,7 +632,7 @@ async def save_settings(message):
         elif answer_msg.content == '4':
             target_answer = await client.wait_for('message')
             if target_answer.author.bot:
-                return
+                continue
             if target_answer.content == 'channel' or target_answer.content == 'server':
                 onetime_server_dict['target'] = target_answer.content
                 embed = discord.Embed(title='デフォルトの反応する対象を設定しました',
@@ -650,7 +650,7 @@ async def save_settings(message):
         elif answer_msg.content == '5':
             read_name_answer = await client.wait_for('message')
             if read_name_answer.author.bot:
-                return
+                continue
             if read_name_answer.content == 'on' or read_name_answer.content == 'off':
                 onetime_server_dict['read_name'] = read_name_answer.content
                 embed = discord.Embed(title='デフォルトの名前読み上げを設定しました',
