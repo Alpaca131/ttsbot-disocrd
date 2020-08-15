@@ -533,6 +533,7 @@ async def save_settings(message):
     save = False
     while not save:
         answer_msg = await client.wait_for('message')
+        print(answer_msg.content)
         if answer_msg.content == 'save':
             save = True
             embed = discord.Embed(title='保存中...',
@@ -555,6 +556,7 @@ async def save_settings(message):
             await wizzard.edit(embed=embed)
             return
         elif answer_msg.content == 'quit':
+            save = True
             embed = discord.Embed(title='終了',
                                   description='キャンセルしました。',
                                   color=discord.Color.red())
