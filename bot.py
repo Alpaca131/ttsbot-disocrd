@@ -91,7 +91,7 @@ async def on_message(message):
     if message.content == 't.help':
         await help_message(ch=message.channel)
     if message.content == 't.release note':
-        embed = discord.Embed(title="◆2020/08/13(02:55)リリース◆", color=discord.Colour.red())
+        embed = discord.Embed(title="◆2020/08/15(05:30)リリース◆", color=discord.Colour.red())
         embed.add_field(name='機能追加',
                         value="・サーバーごとに値を保存できるようになりました。", inline=False)
         embed.add_field(name='バグフィックス',
@@ -250,6 +250,8 @@ async def help_message(ch):
                           '\n__**読み上げ速度(speed=数字)：**__\n・読み上げ速度を変更できます。デフォルトは1です。\n0.25～4の間で指定できます。'
                           '\n__**反応する対象：**__\n・指定なし(もしくはchannel)･･･コマンドのチャンネルに反応\n・server･･･サーバー全体に反応'
                           '\n__**名前読み上げ(name=on/off)：**__\nメッセージの前に送信者の名前を読み上げます。')
+    embed.add_field(name='t.save',
+                    value="サーバーごとのデフォルト設定を保存できます。", inline=False)
     embed.add_field(name='t.<lang>(翻訳して読み上げ)',
                     value="指定の言語に翻訳してから読み上げます。\n(※遅延が増加する場合があります。)", inline=False)
     embed.add_field(name='t.dc',
