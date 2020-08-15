@@ -147,6 +147,9 @@ async def on_message(message):
                 embed.add_field(name=name, value=val, inline=False)
             await message.channel.send(embed=embed)
             return
+        else:
+            await message.channel.send('サーバーのデフォルト設定はまだ保存されていません。')
+            return
     # 切断
     if message.content == 't.dc':
         if not import_check():
