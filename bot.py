@@ -508,7 +508,8 @@ async def connect(message):
 
 
 async def save_settings(message):
-    onetime_server_dict = {'lang': 'None', 'word_limit': 'None', 'speech_speed': 'None', 'target': 'None', 'read_name': 'None'}
+    onetime_server_dict = {'lang': 'None', 'word_limit': 'None', 'speech_speed': 'None', 'target': 'None',
+                           'read_name': 'None'}
     embed = discord.Embed(title='サーバーごとに設定を保存できます',
                           description='選択肢の数字をチャットに入力して下さい。\n「quit」でキャンセルできます。', color=discord.Color.green())
     embed.add_field(name='1️⃣言語', value='・指定なし(もしくはjp)･･･日本語\n'
@@ -532,15 +533,20 @@ async def save_settings(message):
     wizzard = await message.channel.send(embed=embed)
     save = False
     while not save:
-        answer_msg = await client.wait_for('message')
-        if answer_msg.author.bot:
-            continue
+        def check_bot(m):
+            if not m.author.bot:
+                if m.channel == message.channel:
+                    return True
+            return False
+        answer_msg = await client.wait_for('message', check=check_bot)
         if answer_msg.content == 'save':
             save = True
             embed = discord.Embed(title='保存中...',
                                   description='保存中...',
                                   color=discord.Color.red())
             await wizzard.edit(embed=embed)
+            if message.guild.id in server_data:
+                del server_data[message.guild.id]
             server_data[message.guild.id] = onetime_server_dict
             with open('server_data.json', 'w') as f:
                 json.dump(server_data, f, indent=4)
@@ -555,129 +561,105 @@ async def save_settings(message):
                                   description='保存が完了しました。',
                                   color=discord.Color.red())
             await wizzard.edit(embed=embed)
-            break
+            return
         elif answer_msg.content == 'quit':
             save = True
             embed = discord.Embed(title='終了',
                                   description='キャンセルしました。',
                                   color=discord.Color.red())
             await wizzard.edit(embed=embed)
-            break
+            return
         elif answer_msg.content not in message_dict:
             embed = discord.Embed(title='エラー：メッセージが正しくありません',
                                   description='指定のメッセージ以外が送られたため、操作をキャンセルしました',
                                   color=discord.Color.red())
             await wizzard.edit(embed=embed)
-            break
+            return
         embed = discord.Embed(title=message_dict.get(answer_msg.content)[0],
                               description=message_dict.get(answer_msg.content)[1] + '\n`終了し保存するには「save」と入力します。`',
                               color=discord.Color.red())
         await wizzard.edit(embed=embed)
         # 言語オプション
         if answer_msg.content == '1':
-            while not save:
-                lang_answer = await client.wait_for('message')
-                if lang_answer.author.bot:
-                    print('answer is bot')
-                    continue
-                elif lang_answer.content in language_name:
-                    lang_name = language_name.get(lang_answer.content)[0]
-                    language = language_name.get(lang_answer.content)[1]
-                    onetime_server_dict['lang'] = language
-                    embed = discord.Embed(title='デフォルトの言語を設定しました',
-                                          description='言語：' + lang_name + '\n`終了し保存するには「save」と入力します。`',
-                                          color=discord.Color.red())
-                    await wizzard.edit(embed=embed)
-                    break
-                else:
-                    embed = discord.Embed(title='エラー：サポートしていない言語を指定しているか、オプションが間違っています',
-                                          description='autoオプションをお試し下さい。もしかしたら検知できるかもしれません。' + '\n`終了し保存するには「save」と入力します。`',
-                                          color=discord.Color.red())
-                    await wizzard.edit(embed=embed)
-                    break
-            continue
-
-        elif answer_msg.content == '2':
-            while not save:
-                word_limit_answer = await client.wait_for('message')
-                if word_limit_answer.author.bot:
-                    print('answer is bot')
-                    continue
-                elif not str.isdigit(word_limit_answer.content):
-                    embed = discord.Embed(title='エラー：数字を入力して下さい',
-                                          description='数字を入力して下さい。' + '\n`終了し保存するには「save」と入力します。`',
-                                          color=discord.Color.red())
-                    await wizzard.edit(embed=embed)
-                    break
-                onetime_server_dict['word_limit'] = int(word_limit_answer.content)
-                embed = discord.Embed(title='デフォルトの文字数制限を設定しました',
-                                      description='文字数制限：' + word_limit_answer.content + '\n`終了し保存するには「save」と入力します。`',
+            lang_answer = await client.wait_for('message', check=check_bot)
+            if lang_answer.content in language_name:
+                lang_name = language_name.get(lang_answer.content)[0]
+                language = language_name.get(lang_answer.content)[1]
+                onetime_server_dict['lang'] = language
+                embed = discord.Embed(title='デフォルトの言語を設定しました',
+                                      description='言語：' + lang_name + '\n`終了し保存するには「save」と入力します。`',
                                       color=discord.Color.red())
                 await wizzard.edit(embed=embed)
-                break
+                continue
+            else:
+                embed = discord.Embed(title='エラー：サポートしていない言語を指定しているか、オプションが間違っています',
+                                      description='autoオプションをお試し下さい。もしかしたら検知できるかもしれません。' + '\n`終了し保存するには「save」と入力します。`',
+                                      color=discord.Color.red())
+                await wizzard.edit(embed=embed)
+                continue
+
+        elif answer_msg.content == '2':
+            word_limit_answer = await client.wait_for('message', check=check_bot)
+            if not str.isdigit(word_limit_answer.content):
+                embed = discord.Embed(title='エラー：数字を入力して下さい',
+                                      description='数字を入力して下さい。' + '\n`終了し保存するには「save」と入力します。`',
+                                      color=discord.Color.red())
+                await wizzard.edit(embed=embed)
+                continue
+            onetime_server_dict['word_limit'] = int(word_limit_answer.content)
+            embed = discord.Embed(title='デフォルトの文字数制限を設定しました',
+                                  description='文字数制限：' + word_limit_answer.content + '\n`終了し保存するには「save」と入力します。`',
+                                  color=discord.Color.red())
+            await wizzard.edit(embed=embed)
             continue
 
         elif answer_msg.content == '3':
-            while not save:
-                speech_speed_answer = await client.wait_for('message')
-                if speech_speed_answer.author.bot:
-                    print('answer is bot')
-                    continue
-                else:
-                    try:
-                        onetime_server_dict['speech_speed'] = float(speech_speed_answer.content)
-                        embed = discord.Embed(title='デフォルトの読み上げ速度を設定しました',
-                                              description='読み上げ速度：' + speech_speed_answer.content + '\n`終了し保存するには「save」と入力します。`',
-                                              color=discord.Color.red())
-                        await wizzard.edit(embed=embed)
-                        break
-                    except ValueError:
-                        embed = discord.Embed(title='エラー：数字を入力して下さい',
-                                              description='数字を入力して下さい。\n`終了し保存するには「save」と入力します。`',
-                                              color=discord.Color.red())
-                        await wizzard.edit(embed=embed)
-                        break
-            continue
+            speech_speed_answer = await client.wait_for('message', check=check_bot)
+            try:
+                onetime_server_dict['speech_speed'] = float(speech_speed_answer.content)
+                embed = discord.Embed(title='デフォルトの読み上げ速度を設定しました',
+                                      description='読み上げ速度：' + speech_speed_answer.content + '\n`終了し保存するには「save」と入力します。`',
+                                      color=discord.Color.red())
+                await wizzard.edit(embed=embed)
+                continue
+            except ValueError:
+                embed = discord.Embed(title='エラー：数字を入力して下さい',
+                                      description='数字を入力して下さい。\n`終了し保存するには「save」と入力します。`',
+                                      color=discord.Color.red())
+                await wizzard.edit(embed=embed)
+                continue
 
         elif answer_msg.content == '4':
-            while not save:
-                target_answer = await client.wait_for('message')
-                if target_answer.author.bot:
-                    print('answer is bot')
-                    continue
-                elif target_answer.content == 'channel' or target_answer.content == 'server':
-                    onetime_server_dict['target'] = target_answer.content
-                    embed = discord.Embed(title='デフォルトの反応する対象を設定しました',
-                                          description='反応する対象：' + target_answer.content + '\n`終了し保存するには「save」と入力します。`',
-                                          color=discord.Color.red())
-                    await wizzard.edit(embed=embed)
-                    break
-                else:
-                    embed = discord.Embed(title='エラー：channel/serverのどちらかを入力して下さい',
-                                          description='channel/serverのどちらかを入力して下さい。' + '\n`終了し保存するには「save」と入力します。`',
-                                          color=discord.Color.red())
-                    await wizzard.edit(embed=embed)
-                    break
-            continue
+            target_answer = await client.wait_for('message', check=check_bot)
+            if target_answer.content == 'channel' or target_answer.content == 'server':
+                onetime_server_dict['target'] = target_answer.content
+                embed = discord.Embed(title='デフォルトの反応する対象を設定しました',
+                                      description='反応する対象：' + target_answer.content + '\n`終了し保存するには「save」と入力します。`',
+                                      color=discord.Color.red())
+                await wizzard.edit(embed=embed)
+                continue
+            else:
+                embed = discord.Embed(title='エラー：channel/serverのどちらかを入力して下さい',
+                                      description='channel/serverのどちらかを入力して下さい。' + '\n`終了し保存するには「save」と入力します。`',
+                                      color=discord.Color.red())
+                await wizzard.edit(embed=embed)
+                continue
+
         elif answer_msg.content == '5':
-            while not save:
-                read_name_answer = await client.wait_for('message')
-                if read_name_answer.author.bot:
-                    print('answer is bot')
-                    continue
-                elif read_name_answer.content == 'on' or read_name_answer.content == 'off':
-                    onetime_server_dict['read_name'] = read_name_answer.content
-                    embed = discord.Embed(title='デフォルトの名前読み上げを設定しました',
-                                          description='名前読み上げ：' + read_name_answer.content + '\n`終了し保存するには「save」と入力します。`',
-                                          color=discord.Color.red())
-                    await wizzard.edit(embed=embed)
-                    break
-                else:
-                    embed = discord.Embed(title='エラー：on/offのどちらかを入力して下さい',
-                                          description='on/offのどちらかを入力して下さい。' + '\n`終了し保存するには「save」と入力します。`',
-                                          color=discord.Color.red())
-                    await wizzard.edit(embed=embed)
-                    break
+            read_name_answer = await client.wait_for('message', check=check_bot)
+            if read_name_answer.content == 'on' or read_name_answer.content == 'off':
+                onetime_server_dict['read_name'] = read_name_answer.content
+                embed = discord.Embed(title='デフォルトの名前読み上げを設定しました',
+                                      description='名前読み上げ：' + read_name_answer.content + '\n`終了し保存するには「save」と入力します。`',
+                                      color=discord.Color.red())
+                await wizzard.edit(embed=embed)
+                continue
+            else:
+                embed = discord.Embed(title='エラー：on/offのどちらかを入力して下さい',
+                                      description='on/offのどちらかを入力して下さい。' + '\n`終了し保存するには「save」と入力します。`',
+                                      color=discord.Color.red())
+                await wizzard.edit(embed=embed)
+                continue
         elif answer_msg.content == '6':
             embed = discord.Embed(title='エラー：実装中です。まだ使用できません。',
                                   description='None' + '\n`終了し保存するには「save」と入力します。`',
