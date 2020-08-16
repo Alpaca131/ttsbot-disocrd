@@ -64,12 +64,13 @@ async def on_ready():
     f.GetContentFile('expand.json')
     with open('expand.json') as f:
         expand_off = json.load(f)
-    f = drive.CreateFile({'id': '15twVdWyUw7yJSD0BaGTpi-lRil5XmY6t'})
-    f.GetContentFile('server_data.json')
+    e = drive.CreateFile({'id': '15twVdWyUw7yJSD0BaGTpi-lRil5XmY6t'})
+    e.GetContentFile('server_data.json')
     with open('server_data.json') as e:
         server_data = json.load(e)
     await client.get_channel(742064500160594050).send('ready')
     print('ready')
+    print(server_data)
     if not discord.opus.is_loaded():
         # もし未ロードだったら
         discord.opus.load_opus("heroku-buildpack-libopus")
@@ -116,7 +117,7 @@ async def on_message(message):
     if message.content.startswith('t.con'):
         await connect(message=message)
     if message.content == 't.del':
-        if message.guild.id in server_data:
+        if str(message.guild.id) in server_data:
             embed = discord.Embed(title='削除中', color=discord.Colour.red())
             deleting_msg = await message.channel.send(embed=embed)
             del server_data[message.guild.id]
@@ -135,13 +136,13 @@ async def on_message(message):
         else:
             'サーバーのデフォルト設定はまだ保存されていません。'
     if message.content == 't.view':
-        if message.guild.id in server_data:
+        if str(message.guild.id) in server_data:
             embed = discord.Embed(title='サーバーのデフォルト設定')
             for item in message_dict:
                 if item == '6':
                     continue
                 name = message_dict.get(item)[0]
-                val = server_data.get(message.guild.id).get(message_dict.get(item)[2])
+                val = server_data.get(str(message.guild.id)).get(message_dict.get(item)[2])
                 if val == 'None':
                     val = '未設定(デフォルト)'
                 embed.add_field(name=name, value=val, inline=False)
@@ -543,8 +544,7 @@ async def connect(message):
 
 async def save_settings(message):
     if message.guild.id in server_data:
-        onetime_server_dict = server_data.get(message.guild.id)
-
+        onetime_server_dict = server_data.get(str(message.guild.id))
     else:
         onetime_server_dict = {'lang': 'None', 'word_limit': 'None', 'speech_speed': 'None', 'target': 'None',
                                'read_name': 'None'}
@@ -584,9 +584,7 @@ async def save_settings(message):
                                   description='保存中...',
                                   color=discord.Color.red())
             await wizzard.edit(embed=embed)
-            if message.guild.id in server_data:
-                del server_data[message.guild.id]
-            server_data[message.guild.id] = onetime_server_dict
+            server_data[str(message.guild.id)] = onetime_server_dict
             with open('server_data.json', 'w') as f:
                 json.dump(server_data, f, indent=4)
             filepath = 'server_data.json'
