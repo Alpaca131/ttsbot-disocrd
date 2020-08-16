@@ -113,14 +113,13 @@ async def on_message(message):
         await save_settings(message=message)
     if message.content.startswith('t.expand'):
         await message_expand(message=message)
-
     if message.content.startswith('t.con'):
         await connect(message=message)
     if message.content == 't.del':
         if str(message.guild.id) in server_data:
             embed = discord.Embed(title='削除中', color=discord.Colour.red())
             deleting_msg = await message.channel.send(embed=embed)
-            del server_data[message.guild.id]
+            del server_data[str(message.guild.id)]
             with open('server_data.json', 'w') as f:
                 json.dump(server_data, f, indent=4)
             filepath = 'server_data.json'
