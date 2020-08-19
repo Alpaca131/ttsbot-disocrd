@@ -23,10 +23,11 @@ gauth = GoogleAuth()
 gauth.LocalWebserverAuth()
 drive = GoogleDrive(gauth)
 loop = asyncio.get_event_loop()
-file_name = ['voice_active', 'read_name', 'word_limit', 'speech_speed', 'lang']
+file_name = ['voice_active', 'read_name', 'word_limit', 'speech_speed', 'lang', 'read_queue']
 language_name = {'jp': ['日本語', 'ja-JP'], 'kr': ['韓国語', 'ko-KR'], 'ch': ['中国語', 'cmn-CN'],
                  'en': ['英語', 'en-US'], 'auto': ['自動検知', 'auto']}
-message_dict = {'1': ['言語', '言語を入力して下さい。', 'lang'], '2': ['文字数制限', '文字数を入力して下さい。', 'word_limit'], '3': ['読み上げ速度', '0.25～4までの間で入力して下さい。', 'speech_speed'],
+message_dict = {'1': ['言語', '言語を入力して下さい。', 'lang'], '2': ['文字数制限', '文字数を入力して下さい。', 'word_limit'],
+                '3': ['読み上げ速度', '0.25～4までの間で入力して下さい。', 'speech_speed'],
                 '4': ['反応する対象', 'channel/serverのどちらかを入力して下さい。', 'target'],
                 '5': ['名前読み上げ', 'on/offのどちらかを入力してください。', 'read_name'], '6': ['辞書登録', '単語を入力して下さい']}
 server_data = {}
@@ -100,7 +101,6 @@ async def on_message(message):
                         value="・`t.save`でセーブ時に前回の設定が初期化されてしまうバグを修正", inline=False)
         await message.channel.send(embed=embed)
         return
-
     if message.content == 't.invite':
         await message.channel.send('このBotの招待リンクです。導入してもらえると喜びます。'
                                    '\n開発者:Alpaca#8032\nhttps://discord.com/api/oauth2/authorize?client_id'
@@ -151,6 +151,13 @@ async def on_message(message):
         else:
             await message.channel.send('サーバーのデフォルト設定はまだ保存されていません。')
             return
+    # キュークリア
+    if message.content == 't.reset':
+        if message.guild.id not in read_queue or len(read_queue.get(message.guild.id)) == 0:
+            await message.channel.send('キューは空です')
+            return
+        del read_queue[message.guild.id]
+        await message.channel.send('キューをクリアしました')
     # 切断
     if message.content == 't.dc':
         if not import_check():
@@ -168,9 +175,10 @@ async def on_message(message):
             del speech_speed[message.guild.id]
             del read_name[message.guild.id]
             del word_limit[message.guild.id]
+            del read_queue[message.guild.id]
             return
     # 読み上げ
-    if message.guild.id == voice_active.get(message.guild.id)\
+    if message.guild.id == voice_active.get(message.guild.id) \
             or message.channel.id == voice_active.get(message.guild.id):
         if not import_check():
             return
@@ -204,17 +212,30 @@ async def on_message(message):
         # 名前読み上げ
         if read_name.get(message.guild.id) == 'on':
             message.content = message.author.name + ':' + message.content
-        r = tts_request(text=message.content, language=language, speed=speed)
-        if r.status_code == 200:
-            parsed = json.loads(r.text)
-            with open(str(message.guild.id) + '-data.mp3', 'wb') as outfile:
-                outfile.write(base64.b64decode(parsed['audioContent']))
+        # 読み上げキュー
+        if message.guild.id not in read_queue:
+            read_queue[message.guild.id] = []
+        read_queue.get(message.guild.id).append(message.content)
+        while len(read_queue[message.guild.id]) != 0:
             voich = message.guild.voice_client
-            try:
-                voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + '-data.mp3'), after=print('playing'))
-            except AttributeError or discord.errors.ClientException:
-                await discord.VoiceChannel.connect(message.author.voice.channel)
-                voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + '-data.mp3'), after=print('playing'))
+            if voich.is_playing():
+                await asyncio.sleep(0.1)
+                continue
+            content = read_queue.get(message.guild.id).pop(0)
+            r = tts_request(text=content, language=language, speed=speed)
+            if r.status_code == 200:
+                parsed = json.loads(r.text)
+                with open(str(message.guild.id) + '-data.mp3', 'wb') as outfile:
+                    outfile.write(base64.b64decode(parsed['audioContent']))
+                try:
+                    voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + '-data.mp3'), after=print('playing'))
+                except AttributeError or discord.errors.ClientException:
+                    await discord.VoiceChannel.connect(message.author.voice.channel)
+                    voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + '-data.mp3'), after=print('playing'))
+                continue
+            else:
+                print('API error')
+                continue
 
 
 def url_remove(text):
@@ -274,7 +295,8 @@ def tts_request(text, language, speed):
 
 
 def import_check():
-    if 'voice_active' in imported and 'read_name' in imported and 'word_limit' in imported and 'speech_speed' in imported and 'lang' in imported:
+    if 'voice_active' in imported and 'read_name' in imported and 'word_limit' in imported and \
+            'speech_speed' in imported and 'lang' in imported and 'read_queue' in imported:
         return True
     else:
         return False
@@ -336,7 +358,7 @@ async def dm_command(message):
 
 
 async def restart_file(message):
-    global voice_active, lang, speech_speed, word_limit, read_name, voice_active, imported, shutdown
+    global voice_active, lang, speech_speed, word_limit, read_name, read_queue, voice_active, imported, shutdown
     if message.content == 'ready' and SIGTERM:
         await send_file(ch=message.channel)
         shutdown = True
@@ -363,6 +385,8 @@ async def restart_file(message):
                 read_name = dill.load(open(save_name, 'rb'))
             elif message.content == 'voice_active':
                 voice_active = dill.load(open(save_name, 'rb'))
+            elif message.content == 'read_queue':
+                read_queue = dill.load(open(save_name, 'rb'))
             print('dict loaded')
 
 
@@ -401,11 +425,16 @@ async def send_file(ch):
     # voice_active
     dill.dump(voice_active, open('voice_active.dill', 'wb'))
     file5 = discord.File('voice_active.dill')
+    # read_queue
+    dill.dump(read_queue, open('read_queue.dill', 'wb'))
+    file6 = discord.File('read_queue.dill')
     await ch.send('lang', file=file)
     await ch.send('speech_speed', file=file2)
     await ch.send('word_limit', file=file3)
     await ch.send('read_name', file=file4)
+    await ch.send('read_queue', file=file6)
     await ch.send('voice_active', file=file5)
+    return
 
 
 async def connect(message):
@@ -582,6 +611,7 @@ async def save_settings(message):
                 if m.channel == message.channel:
                     return True
             return False
+
         answer_msg = await client.wait_for('message', check=check_bot)
         if answer_msg.content == 'save':
             save = True
