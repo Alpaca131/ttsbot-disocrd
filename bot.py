@@ -92,11 +92,11 @@ async def on_message(message):
     if message.content == 't.help':
         await help_message(ch=message.channel)
     if message.content == 't.release note':
-        embed = discord.Embed(title="◆2020/08/15(05:30)リリース◆", color=discord.Colour.red())
+        embed = discord.Embed(title="◆2020/08/19(20:41)リリース◆", color=discord.Colour.red())
         embed.add_field(name='機能追加',
-                        value="・`t.save`で設定時に、既に保存されてる値が削除されないようになりました。", inline=False)
-        embed.add_field(name='バグフィックス',
                         value="・なし", inline=False)
+        embed.add_field(name='バグフィックス',
+                        value="・`t.save`でセーブ時に全開の設定が初期化されてしまうバグを修正", inline=False)
         await message.channel.send(embed=embed)
         return
 
@@ -542,7 +542,7 @@ async def connect(message):
 
 
 async def save_settings(message):
-    if message.guild.id in server_data:
+    if str(message.guild.id) in server_data:
         onetime_server_dict = server_data.get(str(message.guild.id))
     else:
         onetime_server_dict = {'lang': 'None', 'word_limit': 'None', 'speech_speed': 'None', 'target': 'None',
