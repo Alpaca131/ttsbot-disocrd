@@ -96,9 +96,9 @@ async def on_message(message):
     if message.content == 't.release note':
         embed = discord.Embed(title="◆2020/08/19(20:41)リリース◆", color=discord.Colour.red())
         embed.add_field(name='機能追加',
-                        value="・なし", inline=False)
+                        value="・読み上げている最中に入力した場合、無視されるバグを修正しました", inline=False)
         embed.add_field(name='バグフィックス',
-                        value="・`t.save`でセーブ時に前回の設定が初期化されてしまうバグを修正", inline=False)
+                        value="・負荷を低減させました", inline=False)
         await message.channel.send(embed=embed)
         return
     if message.content == 't.invite':
@@ -219,7 +219,7 @@ async def on_message(message):
         while len(read_queue[message.guild.id]) != 0:
             voich = message.guild.voice_client
             if voich.is_playing():
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(0.2)
                 continue
             content = read_queue.get(message.guild.id).pop(0)
             r = tts_request(text=content, language=language, speed=speed)
