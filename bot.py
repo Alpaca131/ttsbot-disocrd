@@ -94,7 +94,7 @@ async def on_message(message):
     if message.content == 't.help':
         await help_message(ch=message.channel)
     if message.content == 't.release note':
-        embed = discord.Embed(title="◆2020/08/19(20:41)リリース◆", color=discord.Colour.red())
+        embed = discord.Embed(title="◆2020/08/20(02:20)リリース◆", color=discord.Colour.red())
         embed.add_field(name='機能追加',
                         value="・読み上げている最中に入力した場合、無視されるバグを修正しました", inline=False)
         embed.add_field(name='バグフィックス',
