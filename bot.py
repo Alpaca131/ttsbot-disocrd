@@ -30,6 +30,7 @@ message_dict = {'1': ['言語', '言語を入力して下さい。', 'lang'], '2
                 '4': ['反応する対象', 'channel/serverのどちらかを入力して下さい。', 'target'],
                 '5': ['名前読み上げ', 'on/offのどちらかを入力してください。', 'read_name'], '6': ['辞書登録', '単語を入力して下さい']}
 server_data = {}
+read_queue = {}
 lang = {}
 speech_speed = {}
 word_limit = {}
@@ -96,7 +97,7 @@ async def on_message(message):
         embed.add_field(name='機能追加',
                         value="・なし", inline=False)
         embed.add_field(name='バグフィックス',
-                        value="・`t.save`でセーブ時に全開の設定が初期化されてしまうバグを修正", inline=False)
+                        value="・`t.save`でセーブ時に前回の設定が初期化されてしまうバグを修正", inline=False)
         await message.channel.send(embed=embed)
         return
 
@@ -169,8 +170,8 @@ async def on_message(message):
             del word_limit[message.guild.id]
             return
     # 読み上げ
-    if message.guild.id == voice_active.get(message.guild.id) or message.channel.id == voice_active.get(
-            message.guild.id):
+    if message.guild.id == voice_active.get(message.guild.id)\
+            or message.channel.id == voice_active.get(message.guild.id):
         if not import_check():
             return
         message.content = url_remove(text=message.content)
@@ -206,14 +207,14 @@ async def on_message(message):
         r = tts_request(text=message.content, language=language, speed=speed)
         if r.status_code == 200:
             parsed = json.loads(r.text)
-            with open(str(message.channel.id) + '-data.mp3', 'wb') as outfile:
+            with open(str(message.guild.id) + '-data.mp3', 'wb') as outfile:
                 outfile.write(base64.b64decode(parsed['audioContent']))
             voich = message.guild.voice_client
             try:
-                voich.play(discord.FFmpegPCMAudio(str(message.channel.id) + '-data.mp3'), after=print('playing'))
+                voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + '-data.mp3'), after=print('playing'))
             except AttributeError or discord.errors.ClientException:
                 await discord.VoiceChannel.connect(message.author.voice.channel)
-                voich.play(discord.FFmpegPCMAudio(str(message.channel.id) + '-data.mp3'), after=print('playing'))
+                voich.play(discord.FFmpegPCMAudio(str(message.guild.id) + '-data.mp3'), after=print('playing'))
 
 
 def url_remove(text):
@@ -222,11 +223,16 @@ def url_remove(text):
     # 正規表現でカスタム絵文字を除去
     text = re.sub(r'<:\w*:\d*>', '', text)
     # 正規表現でメンションを除去
-    text = re.sub(r'<@\d+>', '', text)
-    # 正規表現でメンションを除去2
-    text = re.sub(r'<@!\d+>', '', text)
-    # 正規表現でロールメンションを除去
-    text = re.sub(r'<@&\d+>', '', text)
+    text = discord.utils.escape_markdown(text=text)
+    text = text.replace('\*', '')
+    text = text.replace('\_', '')
+    text = text.replace('\~', '')
+    text = text.replace('\|', '')
+    text = text.replace('\`', '')
+    text = text.replace('> ', '')
+    text = discord.utils.escape_mentions(text=text)
+    text = re.sub(r'<@​!\d+>', '', text)
+    text = re.sub(r'<@​&\d+>', '', text)
     # 正規表現でチャンネルメンションを除去
     text = re.sub(r'<#\d+>', '', text)
     # URL除去
