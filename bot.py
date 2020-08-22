@@ -212,14 +212,16 @@ async def on_message(message):
         # 名前読み上げ
         if read_name.get(message.guild.id) == 'on':
             message.content = message.author.name + ':' + message.content
-        # 読み上げキュー
+        # 読み上げキュー＆読み上げ
         if message.guild.id not in read_queue:
             read_queue[message.guild.id] = []
         read_queue.get(message.guild.id).append(message.content)
+        if len(read_queue[message.guild.id]) != 0:
+            return
         while len(read_queue[message.guild.id]) != 0:
             voich = message.guild.voice_client
             if voich.is_playing():
-                await asyncio.sleep(0.2)
+                await asyncio.sleep(0.3)
                 continue
             content = read_queue.get(message.guild.id).pop(0)
             r = tts_request(text=content, language=language, speed=speed)
@@ -539,10 +541,11 @@ async def connect(message):
             voice_active[message.guild.id] = message.channel.id
     # 言語
     if 'lang=' in message.content:
-        lang_message = message.content[message.content.find('lang=') + 5:7]
-        if lang_message in language_name:
-            lang_name = language_name.get(lang_message)[0]
-            language = language_name.get(lang_message)[1]
+        lang_position = message.content.find('lang=')
+        lang_msg = message.content[lang_position+5:lang_position+7]
+        if lang_msg in language_name:
+            lang_name = language_name.get(lang_msg)[0]
+            language = language_name.get(lang_msg)[1]
             lang[message.guild.id] = language
         else:
             await message.channel.send('「lang=」オプションが間違っています。「t.help」でヘルプを確認できます。')
