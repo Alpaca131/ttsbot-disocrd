@@ -94,7 +94,7 @@ async def on_ready():
         server_data = json.load(e)
     g = drive.CreateFile({'id': '1FgKvjrUdGG996d3bWkAlve_FjM5CqrOi'})
     g.GetContentFile('server_dict.json')
-    with open('server_data.json') as g:
+    with open('server_dict.json') as g:
         server_dict = json.load(g)
     await client.get_channel(742064500160594050).send('ready')
     print('ready')
@@ -183,7 +183,7 @@ async def on_message(message):
         if str(message.guild.id) in server_dict:
             embed = discord.Embed(title='サーバー辞書')
             for item in server_dict[str(message.guild.id)]:
-                embed.add_field(name='単語：' + item, value='読み方' + server_dict[str(message.guild.id)].get(item),
+                embed.add_field(name='単語：' + item, value='読み方：' + server_dict[str(message.guild.id)].get(item),
                                 inline=False)
             await message.channel.send(embed=embed)
             return
