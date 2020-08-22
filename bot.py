@@ -541,9 +541,13 @@ async def connect(message):
     if 'lang=' in message.content:
         lang_position = message.content.find('lang=')
         lang_msg = message.content[lang_position+5:lang_position+7]
-        if lang_msg in language_name or message.content[lang_position+5:lang_position+9] in language_name:
+        if lang_msg in language_name:
             lang_name = language_name.get(lang_msg)[0]
             language = language_name.get(lang_msg)[1]
+            lang[message.guild.id] = language
+        elif message.content[lang_position+5:lang_position+9] in language_name:
+            lang_name = language_name.get(message.content[lang_position+5:lang_position+9])[0]
+            language = language_name.get(message.content[lang_position+5:lang_position+9])[1]
             lang[message.guild.id] = language
         else:
             await message.channel.send('「lang=」オプションが間違っています。「t.help」でヘルプを確認できます。')
