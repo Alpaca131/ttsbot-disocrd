@@ -182,8 +182,9 @@ async def on_message(message):
     if message.content == 't.dict':
         if str(message.guild.id) in server_dict:
             embed = discord.Embed(title='サーバー辞書')
-            for item in server_dict:
-                embed.add_field(name='単語：' + item, value='読み方' + server_dict[str(message.guild.id)].get(item), inline=False)
+            for item in server_dict[str(message.guild.id)]:
+                embed.add_field(name='単語：' + item, value='読み方' + server_dict[str(message.guild.id)].get(item),
+                                inline=False)
             await message.channel.send(embed=embed)
             return
         else:
