@@ -216,8 +216,6 @@ async def on_message(message):
         if message.guild.id not in read_queue:
             read_queue[message.guild.id] = []
         read_queue.get(message.guild.id).append(message.content)
-        if len(read_queue[message.guild.id]) != 0:
-            return
         while len(read_queue[message.guild.id]) != 0:
             voich = message.guild.voice_client
             if voich.is_playing():
@@ -543,7 +541,7 @@ async def connect(message):
     if 'lang=' in message.content:
         lang_position = message.content.find('lang=')
         lang_msg = message.content[lang_position+5:lang_position+7]
-        if lang_msg in language_name:
+        if lang_msg in language_name or message.content[lang_position+5:lang_position+7] in language_name:
             lang_name = language_name.get(lang_msg)[0]
             language = language_name.get(lang_msg)[1]
             lang[message.guild.id] = language
