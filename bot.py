@@ -538,12 +538,11 @@ async def connect(message):
             detect_msg = 'チャンネルに反応　(デフォルト)'
             voice_active[message.guild.id] = message.channel.id
     # 言語
-    lang_msg_start = message.content.find('lang=')
-    if lang_msg_start != -1:
-        lang_from_message = message.content[lang_msg_start + 5:7]
-        if lang_from_message in language_name:
-            lang_name = language_name.get(lang_from_message)[0]
-            language = language_name.get(lang_from_message)[1]
+    if 'lang=' in message.content:
+        lang_message = message.content[message.content.find('lang=') + 5:7]
+        if lang_message in language_name:
+            lang_name = language_name.get(lang_message)[0]
+            language = language_name.get(lang_message)[1]
             lang[message.guild.id] = language
         else:
             await message.channel.send('「lang=」オプションが間違っています。「t.help」でヘルプを確認できます。')
@@ -567,12 +566,14 @@ async def connect(message):
             lang[message.guild.id] = language
 
     embed = discord.Embed(title=message.author.voice.channel.name + "に接続しました。",
-                          description='言語：' + lang_name + '\n' + limit_msg + '\n' + detect_msg + '\n' + name_msg + '\n' + speed_msg,
+                          description='言語：' + lang_name + '\n' + limit_msg + '\n' + detect_msg + '\n' + name_msg +
+                                      '\n' + speed_msg,
                           color=0x00c707)
     await message.channel.send(embed=embed)
     try:
         await discord.VoiceChannel.connect(message.author.voice.channel)
-    except discord.errors.ClientException:
+    except Exception as e:
+        await message.channel.send('エラー\n`' + str(e) + '`')
         return
 
 
