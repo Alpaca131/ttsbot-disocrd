@@ -94,11 +94,11 @@ async def on_message(message):
     if message.content == 't.help':
         await help_message(ch=message.channel)
     if message.content == 't.release note':
-        embed = discord.Embed(title="◆2020/08/22(22:19)リリース◆", color=discord.Colour.red())
+        embed = discord.Embed(title="◆2020/08/22(23:02)リリース◆", color=discord.Colour.red())
         embed.add_field(name='機能追加',
                         value="・ヘルプを更新しました。", inline=False)
         embed.add_field(name='バグフィックス',
-                        value="・`lang=`オプションのバグを修正しました。", inline=False)
+                        value="・`lang=`オプションのバグを修正しました。\n・サーバーごとのデフォルト設定が適用されないバグを修正しました。", inline=False)
         await message.channel.send(embed=embed)
         return
     if message.content == 't.invite':
@@ -451,8 +451,8 @@ async def connect(message):
         read_name[message.guild.id] = 'off'
         name_msg = '名前読み上げ：オフ'
     else:
-        if message.guild.id in server_data:
-            read_name_server_data = server_data.get(message.guild.id).get('read_name')
+        if str(message.guild.id) in server_data:
+            read_name_server_data = server_data.get(str(message.guild.id)).get('read_name')
             if read_name_server_data != 'None':
                 read_name[message.guild.id] = read_name_server_data
                 if read_name_server_data == 'on':
@@ -476,8 +476,8 @@ async def connect(message):
         word_limit[message.guild.id] = limit_num
         limit_msg = '文字数制限：' + limit_num
     else:
-        if message.guild.id in server_data:
-            word_limit_server_data = server_data.get(message.guild.id).get('word_limit')
+        if str(message.guild.id) in server_data:
+            word_limit_server_data = server_data.get(str(message.guild.id)).get('word_limit')
             if word_limit_server_data != 'None':
                 word_limit[message.guild.id] = str(word_limit_server_data)
                 limit_msg = '文字数制限：' + str(word_limit_server_data)
@@ -497,8 +497,8 @@ async def connect(message):
         speech_speed[message.guild.id] = speed_num
         speed_msg = '読み上げ速度：' + speed_num
     else:
-        if message.guild.id in server_data:
-            speech_speed_server_data = server_data.get(message.guild.id).get('speech_speed')
+        if str(message.guild.id) in server_data:
+            speech_speed_server_data = server_data.get(str(message.guild.id)).get('speech_speed')
             if speech_speed_server_data != 'None':
                 speech_speed[message.guild.id] = str(speech_speed_server_data)
                 speed_msg = '読み上げ速度：' + str(speech_speed_server_data)
@@ -521,8 +521,8 @@ async def connect(message):
         voice_active[message.guild.id] = message.guild.id
     # その他(チャンネルに反応)
     else:
-        if message.guild.id in server_data:
-            target_server_data = server_data.get(message.guild.id).get('target')
+        if str(message.guild.id) in server_data:
+            target_server_data = server_data.get(str(message.guild.id)).get('target')
             if target_server_data == 'server':
                 print('guild')
                 detect_msg = 'サーバー全体に反応'
