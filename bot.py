@@ -29,7 +29,8 @@ language_name = {'jp': ['日本語', 'ja-JP'], 'kr': ['韓国語', 'ko-KR'], 'ch
 message_dict = {'1': ['言語', '言語を入力して下さい。', 'lang'], '2': ['文字数制限', '文字数を入力して下さい。', 'word_limit'],
                 '3': ['読み上げ速度', '0.25～4までの間で入力して下さい。', 'speech_speed'],
                 '4': ['反応する対象', 'channel/serverのどちらかを入力して下さい。', 'target'],
-                '5': ['名前読み上げ', 'on/offのどちらかを入力してください。', 'read_name'], '6': ['辞書登録', '単語を入力して下さい']}
+                '5': ['名前読み上げ', 'on/offのどちらかを入力してください。', 'read_name'], '6': ['辞書登録', '特殊な読み方の単語を登録します\n単語を入力して下さい']}
+server_dict = {}
 server_data = {}
 read_queue = {}
 lang = {}
@@ -59,7 +60,7 @@ def handler(signum, frame):
 
 @client.event
 async def on_ready():
-    global expand_off, server_data
+    global expand_off, server_data, server_dict
     demoji.download_codes()
     await client.change_presence(activity=discord.Game(name="「t.help」でヘルプ", type=1))
     f = drive.CreateFile({'id': '1zX-mbDeN_Mlx-p_62WSE5zAgsqu_jFX5'})
@@ -70,9 +71,12 @@ async def on_ready():
     e.GetContentFile('server_data.json')
     with open('server_data.json') as e:
         server_data = json.load(e)
+    g = drive.CreateFile({'id': '1FgKvjrUdGG996d3bWkAlve_FjM5CqrOi'})
+    g.GetContentFile('server_dict.json')
+    with open('server_data.json') as g:
+        server_dict = json.load(g)
     await client.get_channel(742064500160594050).send('ready')
     print('ready')
-    print(server_data)
     if not discord.opus.is_loaded():
         # もし未ロードだったら
         discord.opus.load_opus("heroku-buildpack-libopus")
@@ -94,11 +98,11 @@ async def on_message(message):
     if message.content == 't.help':
         await help_message(ch=message.channel)
     if message.content == 't.release note':
-        embed = discord.Embed(title="◆2020/08/22(23:02)リリース◆", color=discord.Colour.red())
+        embed = discord.Embed(title="◆2020/08/23(04:28)リリース◆", color=discord.Colour.red())
         embed.add_field(name='機能追加',
-                        value="・ヘルプを更新しました。", inline=False)
+                        value="・辞書機能を追加しました。", inline=False)
         embed.add_field(name='バグフィックス',
-                        value="・`lang=`オプションのバグを修正しました。\n・サーバーごとのデフォルト設定が適用されないバグを修正しました。", inline=False)
+                        value="・なし", inline=False)
         await message.channel.send(embed=embed)
         return
     if message.content == 't.invite':
@@ -106,7 +110,6 @@ async def on_message(message):
                                    '\n開発者:Alpaca#8032\nhttps://discord.com/api/oauth2/authorize?client_id'
                                    '=727508841368911943&permissions=3153472&scope=bot')
         return
-
     if message.content == 't.support':
         await message.channel.send('このBotのサポートサーバーです。バグ報告・要望等あればこちらにお願いします。お気軽にどうぞ。\nhttps://discord.gg/DbtZAcX')
         return
@@ -135,11 +138,14 @@ async def on_message(message):
             return
         else:
             'サーバーのデフォルト設定はまだ保存されていません。'
+    # 設定view
     if message.content == 't.view':
         if str(message.guild.id) in server_data:
             embed = discord.Embed(title='サーバーのデフォルト設定')
             for item in message_dict:
                 if item == '6':
+                    embed.add_field(name=message_dict.get(item)[0],
+                                    value='`t.dict`でサーバー辞書を表示できます', inline=False)
                     continue
                 name = message_dict.get(item)[0]
                 val = server_data.get(str(message.guild.id)).get(message_dict.get(item)[2])
@@ -150,6 +156,17 @@ async def on_message(message):
             return
         else:
             await message.channel.send('サーバーのデフォルト設定はまだ保存されていません。')
+            return
+    # 辞書view
+    if message.content == 't.dict':
+        if str(message.guild.id) in server_dict:
+            embed = discord.Embed(title='サーバー辞書')
+            for item in server_dict:
+                embed.add_field(name='単語：' + item, value='読み方' + server_dict.get(item), inline=False)
+            await message.channel.send(embed=embed)
+            return
+        else:
+            await message.channel.send('辞書にはまだ何も登録されていません。')
             return
     # キュークリア
     if message.content == 't.reset':
@@ -209,6 +226,10 @@ async def on_message(message):
         # 翻訳
         if message.content.startswith('t.'):
             message.content = translator.translate(message.content[5:], dest=message.content[2:4]).text
+        # 辞書機能
+        if str(message.guild.id) in server_dict:
+            table = str.maketrans(server_dict.get(str(message.guild.id)))
+            message.content = message.content.translate(table)
         # 名前読み上げ
         if read_name.get(message.guild.id) == 'on':
             message.content = message.author.name + ':' + message.content
@@ -586,10 +607,14 @@ async def connect(message):
 
 async def save_settings(message):
     if str(message.guild.id) in server_data:
-        onetime_server_dict = server_data.get(str(message.guild.id))
+        onetime_server_data = server_data.get(str(message.guild.id))
     else:
-        onetime_server_dict = {'lang': 'None', 'word_limit': 'None', 'speech_speed': 'None', 'target': 'None',
+        onetime_server_data = {'lang': 'None', 'word_limit': 'None', 'speech_speed': 'None', 'target': 'None',
                                'read_name': 'None'}
+    if str(message.guild.id) in server_dict:
+        onetime_server_dict = server_dict.get(str(message.guild.id))
+    else:
+        onetime_server_dict = {}
     embed = discord.Embed(title='サーバーごとに設定を保存できます',
                           description='選択肢の数字をチャットに入力して下さい。\n「quit」でキャンセルできます。', color=discord.Color.green())
     embed.add_field(name='1️⃣言語', value='・指定なし(もしくはjp)･･･日本語\n'
@@ -627,7 +652,7 @@ async def save_settings(message):
                                   description='保存中...',
                                   color=discord.Color.red())
             await wizzard.edit(embed=embed)
-            server_data[str(message.guild.id)] = onetime_server_dict
+            server_data[str(message.guild.id)] = onetime_server_data
             with open('server_data.json', 'w') as f:
                 json.dump(server_data, f, indent=4)
             filepath = 'server_data.json'
@@ -637,6 +662,18 @@ async def save_settings(message):
             file.SetContentFile(filepath)
             file.Upload()
             print('server_data upload-complete')
+            if str(message.guild.id) in server_dict:
+                del server_dict[str(message.guild.id)]
+            server_dict[str(message.guild.id)] = onetime_server_dict
+            with open('server_dict.json', 'w') as f:
+                json.dump(server_dict, f, indent=4)
+            filepath = 'server_dict.json'
+            title = 'server_dict.json'
+            file = drive.CreateFile(
+                {'id': '1FgKvjrUdGG996d3bWkAlve_FjM5CqrOi', 'title': title, 'mimeType': 'application/json'})
+            file.SetContentFile(filepath)
+            file.Upload()
+            print('server_dict upload-complete')
             embed = discord.Embed(title='保存完了',
                                   description='保存が完了しました。',
                                   color=discord.Color.red())
@@ -664,7 +701,7 @@ async def save_settings(message):
             lang_answer = await client.wait_for('message', check=check_bot)
             if lang_answer.content in language_name:
                 lang_name = language_name.get(lang_answer.content)[0]
-                onetime_server_dict['lang'] = lang_answer.content
+                onetime_server_data['lang'] = lang_answer.content
                 embed = discord.Embed(title='デフォルトの言語を設定しました',
                                       description='言語：' + lang_name + guide_msg,
                                       color=discord.Color.red())
@@ -685,7 +722,7 @@ async def save_settings(message):
                                       color=discord.Color.red())
                 await wizzard.edit(embed=embed)
                 continue
-            onetime_server_dict['word_limit'] = int(word_limit_answer.content)
+            onetime_server_data['word_limit'] = int(word_limit_answer.content)
             embed = discord.Embed(title='デフォルトの文字数制限を設定しました',
                                   description='文字数制限：' + word_limit_answer.content + guide_msg,
                                   color=discord.Color.red())
@@ -695,7 +732,7 @@ async def save_settings(message):
         elif answer_msg.content == '3':
             speech_speed_answer = await client.wait_for('message', check=check_bot)
             try:
-                onetime_server_dict['speech_speed'] = float(speech_speed_answer.content)
+                onetime_server_data['speech_speed'] = float(speech_speed_answer.content)
                 embed = discord.Embed(title='デフォルトの読み上げ速度を設定しました',
                                       description='読み上げ速度：' + speech_speed_answer.content + guide_msg,
                                       color=discord.Color.red())
@@ -711,7 +748,7 @@ async def save_settings(message):
         elif answer_msg.content == '4':
             target_answer = await client.wait_for('message', check=check_bot)
             if target_answer.content == 'channel' or target_answer.content == 'server':
-                onetime_server_dict['target'] = target_answer.content
+                onetime_server_data['target'] = target_answer.content
                 embed = discord.Embed(title='デフォルトの反応する対象を設定しました',
                                       description='反応する対象：' + target_answer.content
                                                   + guide_msg,
@@ -728,7 +765,7 @@ async def save_settings(message):
         elif answer_msg.content == '5':
             read_name_answer = await client.wait_for('message', check=check_bot)
             if read_name_answer.content == 'on' or read_name_answer.content == 'off':
-                onetime_server_dict['read_name'] = read_name_answer.content
+                onetime_server_data['read_name'] = read_name_answer.content
                 embed = discord.Embed(title='デフォルトの名前読み上げを設定しました',
                                       description='名前読み上げ：' + read_name_answer.content
                                                   + guide_msg,
@@ -742,10 +779,26 @@ async def save_settings(message):
                 await wizzard.edit(embed=embed)
                 continue
         elif answer_msg.content == '6':
-            embed = discord.Embed(title='エラー：実装中です。まだ使用できません。',
-                                  description='None' + guide_msg,
+            dict_word_answer = await client.wait_for('message', check=check_bot)
+            embed = discord.Embed(title='読み方を入力して下さい',
+                                  description='単語：' + dict_word_answer.content,
                                   color=discord.Color.red())
             await wizzard.edit(embed=embed)
+            dict_read_answer = await client.wait_for('message', check=check_bot)
+            p = re.compile('[\u3041-\u309F]+')
+            if not p.fullmatch(dict_read_answer.content):
+                embed = discord.Embed(title='エラー：ひらがな以外が入力されました',
+                                      description='ひらがなで入力して下さい。' + guide_msg,
+                                      color=discord.Color.red())
+                await wizzard.edit(embed=embed)
+                continue
+            embed = discord.Embed(title='辞書を設定しました',
+                                  description='**※注意 まだ保存されていません**\nもう1つ設定する場合は、6を入力して下さい' + guide_msg,
+                                  color=discord.Color.red())
+            embed.add_field(name='単語', value=dict_word_answer.content, inline=False)
+            embed.add_field(name='読み方', value=dict_read_answer.content, inline=False)
+            await wizzard.edit(embed=embed)
+            onetime_server_dict[dict_word_answer.content] = dict_read_answer.content
             continue
     return
 
