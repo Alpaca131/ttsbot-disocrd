@@ -94,11 +94,11 @@ async def on_message(message):
     if message.content == 't.help':
         await help_message(ch=message.channel)
     if message.content == 't.release note':
-        embed = discord.Embed(title="◆2020/08/20(02:20)リリース◆", color=discord.Colour.red())
+        embed = discord.Embed(title="◆2020/08/22(22:19)リリース◆", color=discord.Colour.red())
         embed.add_field(name='機能追加',
-                        value="・読み上げている最中に入力した場合、無視されるバグを修正しました", inline=False)
+                        value="・ヘルプを更新しました。", inline=False)
         embed.add_field(name='バグフィックス',
-                        value="・負荷を低減させました", inline=False)
+                        value="・`lang=`オプションのバグを修正しました。", inline=False)
         await message.channel.send(embed=embed)
         return
     if message.content == 't.invite':
@@ -314,6 +314,8 @@ async def help_message(ch):
                           '\n__**名前読み上げ(name=on/off)：**__\nメッセージの前に送信者の名前を読み上げます。')
     embed.add_field(name='t.save',
                     value="サーバーごとのデフォルト設定を保存できます。", inline=False)
+    embed.add_field(name='t.del',
+                    value="サーバーごとのデフォルト設定を削除できます。", inline=False)
     embed.add_field(name='t.<lang>(翻訳して読み上げ)',
                     value="指定の言語に翻訳してから読み上げます。\n(※遅延が増加する場合があります。)", inline=False)
     embed.add_field(name='t.dc',
@@ -578,7 +580,7 @@ async def connect(message):
     try:
         await discord.VoiceChannel.connect(message.author.voice.channel)
     except Exception as e:
-        await message.channel.send('エラー\n`' + str(e) + '`')
+        print(str(e))
         return
 
 
@@ -662,8 +664,7 @@ async def save_settings(message):
             lang_answer = await client.wait_for('message', check=check_bot)
             if lang_answer.content in language_name:
                 lang_name = language_name.get(lang_answer.content)[0]
-                language = language_name.get(lang_answer.content)[1]
-                onetime_server_dict['lang'] = language
+                onetime_server_dict['lang'] = lang_answer.content
                 embed = discord.Embed(title='デフォルトの言語を設定しました',
                                       description='言語：' + lang_name + guide_msg,
                                       color=discord.Color.red())
