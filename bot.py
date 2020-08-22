@@ -58,6 +58,27 @@ def handler(signum, frame):
     SIGTERM = True
 
 
+def multiple_replace(text, adict):
+    """ 一度に複数のパターンを置換する関数
+    - text中からディクショナリのキーに合致する文字列を探し、対応の値で置換して返す
+    - キーでは、正規表現を置換前文字列とできる
+    """
+
+    rx = re.compile('|'.join(adict))
+
+    def dedictkey(text):
+        """ マッチした文字列の元であるkeyを返す
+        """
+        for key in adict.keys():
+            if re.search(key, text):
+                return key
+
+    def one_xlat(match):
+        return adict[dedictkey(match.group(0))]
+
+    return rx.sub(one_xlat, text)
+
+
 @client.event
 async def on_ready():
     global expand_off, server_data, server_dict
@@ -228,8 +249,9 @@ async def on_message(message):
             message.content = translator.translate(message.content[5:], dest=message.content[2:4]).text
         # 辞書機能
         if str(message.guild.id) in server_dict:
-            table = str.maketrans(server_dict.get(str(message.guild.id)))
-            message.content = message.content.translate(table)
+            original_text = message.content
+            trans_tone = server_dict[str(message.guild.id)]
+            message.content = multiple_replace(original_text, trans_tone)
         # 名前読み上げ
         if read_name.get(message.guild.id) == 'on':
             message.content = message.author.name + ':' + message.content
