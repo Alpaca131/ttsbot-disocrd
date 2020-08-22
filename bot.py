@@ -550,7 +550,7 @@ async def connect(message):
             return
     else:
         if str(message.guild.id) in server_data:
-            lang_server_data = server_data.get(message.guild.id).get('lang')
+            lang_server_data = server_data.get(str(message.guild.id)).get('lang')
             if lang_server_data != 'None':
                 lang_name = language_name.get(lang_server_data)[0]
                 language = language_name.get(lang_server_data)[1]
